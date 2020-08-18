@@ -1,6 +1,6 @@
 // React
 import React from 'react';
-import { AsyncStorage } from 'react-native';
+import {AsyncStorage, View, ActivityIndicator} from 'react-native';
 
 // Globals
 import * as globals from './src/util/globals';
@@ -30,6 +30,7 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      isReady: false,
       isLogin: false
     };
   }
@@ -50,10 +51,11 @@ export default class App extends React.Component {
             globals.first_name = dataStorage.data.attributes.first_name || '';
             globals.last_name = dataStorage.data.attributes.last_name || '';
             this.setState({isLogin: true})
+            this.setState({isReady: true, isLogin: true})
           }else{
             globals.token = token || '';
             console.log("ALERTA ALERTA ========= AsyncStorage.getItem is NULL ========= ALERTA ALERTA")
-            this.setState({isLogin: false})
+            this.setState({isReady: true, isLogin: false})
           }
         })
       })
@@ -61,6 +63,13 @@ export default class App extends React.Component {
   }
 
   render() {
+    if (!this.state.isReady) {
+      return (
+        <View style={{flex:1, flexDirection:'column', justifyContent:'center', alignItems:'center'}}>
+          <ActivityIndicator size="large" color="#34aae1" />
+        </View>
+      )
+    }
     return (
       <ThemeContext.Provider value={getTheme(uiTheme)}>
         <Routes isLogin={this.state.isLogin} />
