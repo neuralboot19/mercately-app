@@ -21,6 +21,17 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "android": {
+      "versionCode": 1,
+      "package": "com.mercately.app",
+      "permissions": [
+        "NOTIFICATIONS",
+        "USER_FACING_NOTIFICATIONS",
+        "AUDIO_RECORDING",
+        "ACCESS_FINE_LOCATION",
+        "INTERNET"
+      ]
     }
   }
 }
