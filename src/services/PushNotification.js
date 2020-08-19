@@ -2,6 +2,7 @@ import { Notifications } from 'expo';
 import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
 import { AsyncStorage } from 'react-native';
+import * as globals from '../util/globals';
 
 export default registerForPushNotificationsAsync = async () => {
   console.log("pasooooooooooooooooooooooooooooooooo file PushNotification")
@@ -17,6 +18,7 @@ export default registerForPushNotificationsAsync = async () => {
       return;
     }
     let token = await Notifications.getExpoPushTokenAsync();
+    globals.token = token
     await AsyncStorage.setItem('PushNotificationToken', token);
   } else {
     alert('Must use physical device for Push Notifications');
