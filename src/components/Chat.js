@@ -6,6 +6,9 @@ import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/R
 import Moment from 'moment';
 import 'moment/locale/es';
 
+// Component
+import EditCustomer from './EditCustomer';
+
 // Loader module Audio and Video
 import { Audio, Video } from 'expo-av';
 
@@ -31,6 +34,7 @@ export default class Chat extends Component {
       messages: [],
       newMessage: false,
       isVisibleModal: false,
+      isVisibleModalEditCustomer: false,
       urlImageZoom: "",
       statusPlaySound: "Reproducir",
       messageText: ""
@@ -280,6 +284,12 @@ export default class Chat extends Component {
     })
   }
 
+  onPressMenu = (option) => {
+    if (option.index == 0) {
+      this.setState({isVisibleModal:false, isVisibleModalEditCustomer:true})
+    }
+  }
+
   render() {
     return (
       <View style={styles.containerChat}>
@@ -287,6 +297,8 @@ export default class Chat extends Component {
           leftElement="keyboard-arrow-left"
           centerElement={this.props.route.params.data.fullName == "" ? this.props.route.params.data.phone : this.props.route.params.data.fullName}
           onLeftElementPress={() => this.onPressBack()}
+          rightElement={{ menu: { icon: "more-vert", labels: ["Editar Usuario"] } }}
+          onRightElementPress={ (option) => this.onPressMenu(option)}
         />
         <View style={styles.chatMain}>
           <FlatList
@@ -329,6 +341,14 @@ export default class Chat extends Component {
           >
             <Image style={{ flex: 1, width: null, height: '100%' }} source={{uri: this.state.urlImageZoom}} resizeMode="contain" />
           </ReactNativeZoomableView>
+        </Modal>
+        <Modal visible={this.state.isVisibleModalEditCustomer} animated>
+          <Toolbar
+            centerElement="Detalles"
+            rightElement="close"
+            onRightElementPress={() => this.setState({isVisibleModalEditCustomer:false})}
+          />
+          <EditCustomer data={this.props.route.params.data}/>
         </Modal>
       </View>
     )
