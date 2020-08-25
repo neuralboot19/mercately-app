@@ -30,6 +30,12 @@ export const API = {
   signOut: (onResponse, {}, isHeaderRequired) => {
     request(onResponse, {}, 'DELETE', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.SIGNOUT, buildHeader());
   },
+  customer: (onResponse, {}, id, isHeaderRequired) => {
+    request(onResponse, {}, 'GET', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMER + id, buildHeader());
+  },
+  customerUpdate: (onResponse, data, id, isHeaderRequired) => {
+    request(onResponse, data, 'PUT', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMER + id, buildHeader());
+  },
   customersList: (onResponse, {}, page, offset, isHeaderRequired) => {
     request(onResponse, {}, 'GET', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMERSLIST + "?page=" + page + "&offset=" + offset + "&searchString=&order=received_desc&type=all&agent=all&tag=all", buildHeader());
   },
@@ -79,9 +85,6 @@ async function request(onResponse, data, type, returnType, isHeaderRequired, fea
       onResponse.success(responseJSON, responseHEADERS);
     } else {
       onResponse.error(responseJSON, responseHEADERS);
-    }
-    if (onResponse.complete) {
-      onResponse.complete();
     }
   } catch (error) {
     console.log("onResponse catch error " + error);

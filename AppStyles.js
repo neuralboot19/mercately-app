@@ -4,7 +4,7 @@ module.exports = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F4F5F7',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   containerLogin: {
     flex: 1,
@@ -60,7 +60,7 @@ module.exports = StyleSheet.create({
   containerChat: {
     flex:1,
     flexDirection: 'column',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   chatMain: {
     flex:1,
@@ -106,4 +106,11 @@ module.exports = StyleSheet.create({
     color:"#514E5A"
   },
   /////////////////////////////// Style Chat End ///////////////////////////////
+  //////////////////////////// Style Edit CUstomer  ////////////////////////////
+  optionNationalIdType: {
+    flexDirection:'row',
+    justifyContent:'space-between',
+    marginTop: 20
+  }
+  ////////////////////////// Style Edit CUstomer End  //////////////////////////
 });
