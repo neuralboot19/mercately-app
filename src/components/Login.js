@@ -42,6 +42,7 @@ export default class Login extends React.Component {
   loginResponse = {
     success: (response, header) => {
       try {
+        console.log("JSON.stringify(response)JSON.stringify(response)",JSON.stringify(response))
         AsyncStorage.multiSet([['header', JSON.stringify(header)],['loginData', JSON.stringify(response)]],()=>{
           globals.header = header || '';
           globals.id = response.data.attributes.id || '';
@@ -50,6 +51,7 @@ export default class Login extends React.Component {
           globals.email = response.data.attributes.email || '';
           globals.first_name = response.data.attributes.first_name || '';
           globals.last_name = response.data.attributes.last_name || '';
+          globals.retailer_integration = response.data.attributes.retailer_integration || '';
           this.props.navigation.navigate('Dashboard');
         })
       } catch (error) {

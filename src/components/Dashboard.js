@@ -106,6 +106,7 @@ export default class DashboardAdmin extends Component {
         globals.first_name = null
         globals.last_name = null
         globals.email = null
+        globals.retailer_integration = null
         this.drawer.closeDrawer();
         this.setState({leftElementIcon: 'menu', spinner: false, customersList:[]})
         this.props.navigation.navigate('Login');
@@ -118,6 +119,7 @@ export default class DashboardAdmin extends Component {
         globals.first_name = null
         globals.last_name = null
         globals.email = null
+        globals.retailer_integration = null
         this.setState({spinner: false, customersList:[]});
         Alert.alert('Error',error.message,[{text:'OK'}]);
       }
@@ -131,6 +133,7 @@ export default class DashboardAdmin extends Component {
       globals.first_name = null
       globals.last_name = null
       globals.email = null
+      globals.retailer_integration = null
       this.setState({spinner: false, isOnRefresh:true, customersList:[]});
       Alert.alert('Error Cierre su App y inicie de nuevo',err.message,[{text:'OK', onPress: () => this.props.navigation.navigate('Login')}]);
     }
@@ -146,8 +149,8 @@ export default class DashboardAdmin extends Component {
     }
   }
 
-  onPressChat = (fullName, phone, id, whatsappOptIn) => {
-    let data = {id:id, fullName:fullName, phone:phone, whatsapp_opt_in:whatsappOptIn}
+  onPressChat = (fullName, phone, id, whatsappOptIn, recentMessageDate) => {
+    let data = {id:id, fullName:fullName, phone:phone, whatsapp_opt_in:whatsappOptIn, recent_inbound_message_date:recentMessageDate}
     this.props.navigation.navigate('Chat',{data})
   }
 
@@ -164,8 +167,9 @@ export default class DashboardAdmin extends Component {
     let badgeCount = customer.unread_whatsapp_chat == true || customer["unread_whatsapp_message?"] == true
     let iconsName = customer.last_whatsapp_message.status == 'sent' ? 'check' : (customer.last_whatsapp_message.status == 'delivered' ? 'check-all' : ( customer.last_whatsapp_message.status == 'read' ? 'check-all' : 'sync'))
     let iconsColor = customer.last_whatsapp_message.status == 'sent' ? 'black' : (customer.last_whatsapp_message.status == 'delivered' ? 'black' : ( customer.last_whatsapp_message.status == 'read' ? '#34aae1' : 'black'))
+    console.log("aquiiiiiiiiiiiiii",customer)
     return(
-      <TouchableOpacity style={styles.cardChatSelect} key={customer.id} onPress={() => this.onPressChat(fullName, customer.phone, customer.id, customer.whatsapp_opt_in)}>
+      <TouchableOpacity style={styles.cardChatSelect} key={customer.id} onPress={() => this.onPressChat(fullName, customer.phone, customer.id, customer.whatsapp_opt_in, customer.recent_inbound_message_date)}>
         <View>
           {badgeCount && customer.unread_whatsapp_messages > 0 ?
             <Badge

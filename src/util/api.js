@@ -47,6 +47,12 @@ export const API = {
   },
   whatsAppMessageAsRead: (onResponse, data, id, isHeaderRequired) => {
     request(onResponse, data, 'PUT', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.WHATSAPPMESSAGEASREAD + "/" + id, buildHeader());
+  },
+  whatsAppAcceptOptIn: (onResponse, {}, id, isHeaderRequired) => {
+    request(onResponse, {}, 'PATCH', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.WHATSAPPACCEPTOPTIN + "/" + id, buildHeader());
+  },
+  whatsAppTemplates: (onResponse, {}, page, isHeaderRequired) => {
+    request(onResponse, {}, 'GET', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.WHATSAPPTEMPLATES + "?page=" + page, buildHeader());
   }
 }
 

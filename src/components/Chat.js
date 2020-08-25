@@ -8,6 +8,7 @@ import 'moment/locale/es';
 
 // Component
 import EditCustomer from './EditCustomer';
+import TemplatesCustomer from './Templates';
 
 // Loader module Audio and Video
 import { Audio, Video } from 'expo-av';
@@ -35,9 +36,14 @@ export default class Chat extends Component {
       newMessage: false,
       isVisibleModal: false,
       isVisibleModalEditCustomer: false,
+      isVisibleModalTemplatesCustomer: false,
       urlImageZoom: "",
       statusPlaySound: "Reproducir",
-      messageText: ""
+      buttonSendDisabled: true,
+      messageText: "",
+      canWrite: true,
+      whatsappOptIn: this.props.route.params.data.whatsapp_opt_in,
+      gupshupIntegrated: globals.retailer_integration
     };
     this.socket = io(globals.url_socket_io, {jsonp: true});
     this.socket.on('connect', () => {this.socket.emit('create_room', globals.id)});
@@ -48,9 +54,17 @@ export default class Chat extends Component {
         this.props.navigation.navigate('Dashboard')
       })
     });
+    this.opted_in = false;
   }
 
   componentDidMount() {
+    this.opted_in = this.props.route.params.data.whatsapp_opt_in;
+    let rDate = Moment(this.props.route.params.data.recent_inbound_message_date).local();
+    this.setState({
+      canWrite: Moment().local().diff(rDate, 'hours') < 24
+    }, () => {
+      this.opted_in = this.props.route.params.data.whatsapp_opt_in || false
+    })
     API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,{},this.state.customerId,1,true);
   }
 
@@ -167,29 +181,31 @@ export default class Chat extends Component {
     this.setState({isVisibleModal:true,urlImageZoom:uri})
   }
 
-  onPressSendMessage = () => {
-    this.setState({spinner:true})
-    let data = {
-      "message": this.state.messageText,
+  onPressSendMessage = (data) => {
+    let message = data == "" ? this.state.messageText : data
+    let template = data == "" ? false : true
+    this.setState({spinner:true, isVisibleModalTemplatesCustomer:false})
+    let endData = {
+      "message": message,
       "customer_id": this.state.customerId,
-      "template": false,
+      "template": template,
       "type": 'text'
     }
-    API.sendWhatsAppMessage(this.sendWhatsAppMessageResponse,data,true);
+    API.sendWhatsAppMessage(this.sendWhatsAppMessageResponse,endData,true);
   }
 
   sendWhatsAppMessageResponse = {
     success: (response) => {
       try {
         this.textMenssage.clear()
-        this.setState({spinner:false})
-        console.log('LOGIN RESPONSE responseeeeeeeeee',response)
+        this.setState({spinner:false,buttonSendDisabled:true})
+        console.log('SEND MESSAGE RESPONSE responseeeeeeeeee')
       } catch (error) {
-        console.log('LOGIN RESPONSE ERROR',error)
+        console.log('SEND MESSAGE RESPONSE ERROR',error)
       }
     },
     error: (err) => {
-      console.log('LOGIN RESPONSE ERR',err)
+      console.log('SEND MESSA RESPONSE ERR',err)
     }
   }
 
@@ -290,6 +306,40 @@ export default class Chat extends Component {
     }
   }
 
+  inputMessage = (messageText) => {
+    let validated = this.state.buttonSendDisabled
+    if (messageText.length == 0) {
+      validated = true
+    } else {
+      validated = false
+    }
+    this.setState({messageText:messageText, buttonSendDisabled:validated})
+  }
+
+  openTemplate = () => {
+    if (this.state.whatsappOptIn || this.state.gupshupIntegrated == 0) {
+      this.setState({isVisibleModalTemplatesCustomer:true})
+    } else {
+      Alert.alert(globals.APP_NAME,'Tengo el permiso explícito de enviar mensajes a este número (opt-in)',[
+        {text: 'OK', onPress: () => API.whatsAppAcceptOptIn(this.whatsAppAcceptOptInResponse,{},this.state.customerId,true)}
+      ])
+    }
+  }
+
+  whatsAppAcceptOptInResponse = {
+    success: (response) => {
+      try {
+        this.setState({isVisibleModalTemplatesCustomer:true})
+        console.log('RESPONSE RESPONSE READ',response)
+      } catch (error) {
+        console.log('RESPONSE ERROR READ',error)
+      }
+    },
+    error: (err) => {
+      console.log('RESPONSE ERR READ',err)
+    }
+  }
+
   render() {
     return (
       <View style={styles.containerChat}>
@@ -308,24 +358,29 @@ export default class Chat extends Component {
             keyExtractor={(item)=>item.id.toString()}
           />
         </View>
-        <View style={styles.chatFooter}>
-          <TextInput
-            ref={ref => (this.textMenssage = ref)}
-            style={styles.inputMesage}
-            onChangeText={messageText => this.setState({ messageText })}
-            value={this.state.messageText}
-            keyboardType="default"
-            autoCapitalize="none"
-            multiline
-          />
-          {this.state.spinner == true ? (
-            <View style={{marginHorizontal:22}}>
-              <ActivityIndicator size="small" color="black" />
-            </View>
-          ):(
-            <Button text="" upperCase={false} icon="send" onPress={this.onPressSendMessage} />
-          )}
-        </View>
+        {!this.state.canWrite ?
+          <View style={styles.chatFooter}>
+            <Button style={{container:[styles.inputMesage,{paddingVertical:22}], text:{color:'white'}}} text="Canal Cerrado. Puedes enviar una plantilla" upperCase={false} onPress={this.openTemplate} />
+          </View>
+        :
+          <View style={styles.chatFooter}>
+            <TextInput
+              ref={ref => (this.textMenssage = ref)}
+              style={styles.inputMesage}
+              onChangeText={messageText => this.inputMessage(messageText)}
+              value={this.state.messageText}
+              keyboardType="default"
+              multiline
+            />
+            {this.state.spinner == true ? (
+              <View style={{marginHorizontal:22}}>
+                <ActivityIndicator size="small" color="black" />
+              </View>
+            ):(
+              <Button text="" upperCase={false} icon="send" disabled={this.state.buttonSendDisabled} onPress={this.onPressSendMessage} />
+            )}
+          </View>
+        }
         <Modal visible={this.state.isVisibleModal} animated>
           <Toolbar
             rightElement="close"
@@ -349,6 +404,14 @@ export default class Chat extends Component {
             onRightElementPress={() => this.setState({isVisibleModalEditCustomer:false})}
           />
           <EditCustomer data={this.props.route.params.data}/>
+        </Modal>
+        <Modal visible={this.state.isVisibleModalTemplatesCustomer} animated>
+          <Toolbar
+            centerElement="Plantillas"
+            rightElement="close"
+            onRightElementPress={() => this.setState({isVisibleModalTemplatesCustomer:false})}
+          />
+          <TemplatesCustomer setSendMessageTemplate={this.onPressSendMessage} />
         </Modal>
       </View>
     )
