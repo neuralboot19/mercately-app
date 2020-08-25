@@ -1,11 +1,10 @@
-import { Notifications } from 'expo';
+import * as Notifications from 'expo-notifications';
 import * as Permissions from 'expo-permissions';
 import Constants from 'expo-constants';
 import { AsyncStorage } from 'react-native';
 import * as globals from '../util/globals';
 
-export default registerForPushNotificationsAsync = async () => {
-  console.log("pasooooooooooooooooooooooooooooooooo file PushNotification")
+export const registerForPushNotificationsAsync = async () => {
   if (Constants.isDevice) {
     const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
     let finalStatus = existingStatus;
@@ -17,8 +16,8 @@ export default registerForPushNotificationsAsync = async () => {
       alert('Failed to get push token for push notification!');
       return;
     }
-    let token = await Notifications.getExpoPushTokenAsync();
-    globals.token = token
+    let token = await Notifications.getExpoPushTokenAsync({experienceId: '@mercately/mercately'});
+    globals.token = token.data
     await AsyncStorage.setItem('PushNotificationToken', token);
   } else {
     alert('Must use physical device for Push Notifications');

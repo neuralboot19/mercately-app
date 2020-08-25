@@ -17,7 +17,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mercately.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -32,6 +33,13 @@
         "ACCESS_FINE_LOCATION",
         "INTERNET"
       ]
-    }
+    },
+    "sdkVersion": "38.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "entryPoint": "node_modules/expo/AppEntry.js"
   }
 }

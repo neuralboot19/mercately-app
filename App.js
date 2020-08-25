@@ -9,7 +9,7 @@ import * as globals from './src/util/globals';
 import Routes from './src/navigator/Routes';
 
 // Notification Push
-import registerForPushNotificationsAsync from './src/services/PushNotification';
+import { registerForPushNotificationsAsync } from './src/services/PushNotification';
 
 // Material UI to React Native
 import { COLOR, ThemeContext, getTheme } from 'react-native-material-ui';
