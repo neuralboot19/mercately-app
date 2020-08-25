@@ -4,8 +4,7 @@ module.exports = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F4F5F7',
-    justifyContent: 'center',
-    marginTop:35
+    justifyContent: 'center'
   },
   containerLogin: {
     flex: 1,
@@ -61,8 +60,7 @@ module.exports = StyleSheet.create({
   containerChat: {
     flex:1,
     flexDirection: 'column',
-    justifyContent: 'space-between',
-    marginTop:35,
+    justifyContent: 'space-between'
   },
   chatMain: {
     flex:1,
