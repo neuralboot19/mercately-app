@@ -96,10 +96,10 @@ export default class EditCustomer extends React.Component {
   }
 
   validateFields = () => {
-    if (this.state.firstName == null || this.state.firstName == "") {
+    if (!this.state.firstName) {
       alert("Agrege al menos un nombre")
       return false;
-    } else if (this.state.lastName == null || this.state.lastName == "") {
+    } else if (!this.state.lastName) {
       alert("Agrege al menos un apellido")
       return false;
     } else if (this.validateEmail(this.state.email) == false) {
@@ -108,13 +108,13 @@ export default class EditCustomer extends React.Component {
     } else if (this.validateNationalId(this.state.nationalId) == false) {
       alert('El número de IDENTIDAD debe tener entre 10 ó 13 caracteres')
       return false;
-    } else if (this.state.address == null || this.state.address == "" || this.state.address.length <= 3) {
+    } else if (!this.state.address || this.state.address.length < 4) {
       alert('Ingrese una direccion válida')
       return false;
-    } else if (this.state.city == "" || this.state.city.length <= 3) {
+    } else if (!this.state.city || this.state.city.length < 4) {
       alert('Ingrese una ciudad válida')
       return false;
-    } else if (this.state.province == "" || this.state.province.length <= 3) {
+    } else if (!this.state.province || this.state.province.length < 4) {
       alert('Ingrese Provincia/Estado válido')
       return false;
     }
