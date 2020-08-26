@@ -50,6 +50,7 @@ export default class App extends React.Component {
             globals.email = dataStorage.data.attributes.email || '';
             globals.first_name = dataStorage.data.attributes.first_name || '';
             globals.last_name = dataStorage.data.attributes.last_name || '';
+            globals.retailer_integration = dataStorage.data.attributes.retailer_integration || '';
             this.setState({isLogin: true})
             this.setState({isReady: true, isLogin: true})
           }else{

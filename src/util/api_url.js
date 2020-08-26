@@ -6,3 +6,5 @@ export const CUSTOMER = "api/v1/customers/";
 export const CUSTOMERSLIST = "api/v1/karix_whatsapp_customers";
 export const SENDWHATSAPPMESSAGE = "api/v1/karix_send_whatsapp_message";
 export const WHATSAPPMESSAGEASREAD = "api/v1/whatsapp_update_message_read";
+export const WHATSAPPACCEPTOPTIN = "api/v1/accept_optin_for_whatsapp";
+export const WHATSAPPTEMPLATES = "api/v1/whatsapp_templates";

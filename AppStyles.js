@@ -106,6 +106,7 @@ module.exports = StyleSheet.create({
     color:"#514E5A"
   },
   /////////////////////////////// Style Chat End ///////////////////////////////
+
   //////////////////////////// Style Edit CUstomer  ////////////////////////////
   optionNationalIdType: {
     flexDirection:'row',

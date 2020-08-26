@@ -7,4 +7,5 @@ export let admin = null
 export let first_name = null
 export let last_name = null
 export let email = null
-export let url_socket_io = 'https://wss.mercately.com'
+export let retailer_integration = ''
+export let url_socket_io = 'https://wssmercately.com'
