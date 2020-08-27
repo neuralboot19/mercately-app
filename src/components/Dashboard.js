@@ -29,7 +29,9 @@ export default class DashboardAdmin extends Component {
       isOnRefresh: false,
       page: 1,
       offset: 0,
-      new_message_counter: 0
+      new_message_counter: 0,
+      setEditCustomerFullName: '',
+      setEditCustomerId: 0
     };
     this.signOut = this.signOut.bind(this);
     this.onEndReachedCalledDuringMomentum = true;
@@ -151,7 +153,11 @@ export default class DashboardAdmin extends Component {
 
   onPressChat = (fullName, phone, id, whatsappOptIn, recentMessageDate) => {
     let data = {id:id, fullName:fullName, phone:phone, whatsapp_opt_in:whatsappOptIn, recent_inbound_message_date:recentMessageDate}
-    this.props.navigation.navigate('Chat',{data})
+    this.props.navigation.navigate('Chat',{data, setDataDashboard:this.setDataDashboard})
+  }
+
+  setDataDashboard = (data, id) => {
+    this.setState({setEditCustomerFullName:data, setEditCustomerId:id})
   }
 
   renderItem = (item) =>{
@@ -161,13 +167,13 @@ export default class DashboardAdmin extends Component {
     if(fullName == '') {
       fullName = customer.whatsapp_name != null ? customer.whatsapp_name : customer.phone
     }
+    fullName = this.state.setEditCustomerId == customer.id ? this.state.setEditCustomerFullName : fullName
     let assignedAgent = customer.assigned_agent.full_name == ' ' ? customer.assigned_agent.email : customer.assigned_agent.full_name
     assignedAgent = assignedAgent.length > 20 ? assignedAgent.substr(-20, 15) + "..." : assignedAgent
     let initials = customer.first_name && customer.last_name ? `${customer.first_name.charAt(0)} ${customer.last_name.charAt(0)}` : customer.whatsapp_name ? customer.whatsapp_name.charAt(0) : ''
     let badgeCount = customer.unread_whatsapp_chat == true || customer["unread_whatsapp_message?"] == true
     let iconsName = customer.last_whatsapp_message.status == 'sent' ? 'check' : (customer.last_whatsapp_message.status == 'delivered' ? 'check-all' : ( customer.last_whatsapp_message.status == 'read' ? 'check-all' : 'sync'))
     let iconsColor = customer.last_whatsapp_message.status == 'sent' ? 'black' : (customer.last_whatsapp_message.status == 'delivered' ? 'black' : ( customer.last_whatsapp_message.status == 'read' ? '#34aae1' : 'black'))
-    console.log("aquiiiiiiiiiiiiii",customer)
     return(
       <TouchableOpacity style={styles.cardChatSelect} key={customer.id} onPress={() => this.onPressChat(fullName, customer.phone, customer.id, customer.whatsapp_opt_in, customer.recent_inbound_message_date)}>
         <View>

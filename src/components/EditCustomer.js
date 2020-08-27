@@ -25,6 +25,8 @@ export default class EditCustomer extends React.Component {
       notes: "",
       idType: 0,
       placeholderNationalId: "9999999999",
+      phone: null,
+      whatsappName: ""
     };
   }
 
@@ -47,7 +49,9 @@ export default class EditCustomer extends React.Component {
           city: response.customer.city,
           province: response.customer.state,
           notes: response.customer.notes,
-          placeholderNationalId: placeholderNationalId
+          placeholderNationalId: placeholderNationalId,
+          phone: response.customer.phone,
+          whatsappName: response.customer.whatsapp_name
         })
       } catch (error) {
         console.log('EDITCUSTOMER RESPONSE ERROR',error)
@@ -81,6 +85,7 @@ export default class EditCustomer extends React.Component {
     success: (response) => {
       try {
         alert("Datos actualizados con exito")
+        this.setData()
         this.setState({spinner: false})
       } catch (error) {
         alert("Error catch update customer")
@@ -96,27 +101,13 @@ export default class EditCustomer extends React.Component {
   }
 
   validateFields = () => {
-    if (!this.state.firstName) {
-      alert("Agrege al menos un nombre")
-      return false;
-    } else if (!this.state.lastName) {
-      alert("Agrege al menos un apellido")
-      return false;
-    } else if (this.validateEmail(this.state.email) == false) {
-      alert('El correo ingresado no es válido')
-      return false;
-    } else if (this.validateNationalId(this.state.nationalId) == false) {
-      alert('El número de IDENTIDAD debe tener entre 10 ó 13 caracteres')
-      return false;
-    } else if (!this.state.address || this.state.address.length < 4) {
-      alert('Ingrese una direccion válida')
-      return false;
-    } else if (!this.state.city || this.state.city.length < 4) {
-      alert('Ingrese una ciudad válida')
-      return false;
-    } else if (!this.state.province || this.state.province.length < 4) {
-      alert('Ingrese Provincia/Estado válido')
-      return false;
+    if (this.validateEmail(this.state.email) == false) {
+      if (this.state.email == "") {
+        return true
+      } else {
+        alert('El correo ingresado no es válido')
+        return false;
+      }
     }
     return true;
   }
@@ -126,13 +117,14 @@ export default class EditCustomer extends React.Component {
     return re.test(String(email).toLowerCase());
   };
 
-  validateNationalId = nationalId => {
-    if (nationalId == null) {
-      return false
-    } else if (this.state.nationalId.length != 10 && this.state.nationalId.length != 13 || this.state.nationalId == 0) {
-      return false
+  setData = () => {
+    let fullName = this.state.firstName != null ? this.state.firstName + ' ' : ''
+    fullName += this.state.lastName != null ? this.state.lastName : ''
+    if(fullName == '') {
+      fullName = this.state.whatsappName != null ? this.state.whatsappName : this.state.phone
     }
-    return true
+    const {setData} = this.props
+    setData(fullName)
   }
 
   selectNationalId = (option) => {

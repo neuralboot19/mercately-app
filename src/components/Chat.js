@@ -43,16 +43,16 @@ export default class Chat extends Component {
       messageText: "",
       canWrite: true,
       whatsappOptIn: this.props.route.params.data.whatsapp_opt_in,
-      gupshupIntegrated: globals.retailer_integration
+      gupshupIntegrated: globals.retailer_integration,
+      fullName: this.props.route.params.data.fullName == "" ? this.props.route.params.data.phone : this.props.route.params.data.fullName
     };
     this.socket = io(globals.url_socket_io, {jsonp: true});
     this.socket.on('connect', () => {this.socket.emit('create_room', globals.id)});
     this.getReplyChat = this.getReplyChat.bind(this);
     this.socket.on('message_chat', this.getReplyChat)
     this.props.navigation.addListener('blur', () => {
-      this.setState({customerId:null}, () => {
-        this.props.navigation.navigate('Dashboard')
-      })
+      this.setState({customerId:null})
+      this.props.navigation.navigate('Dashboard')
     });
     this.opted_in = false;
   }
@@ -340,12 +340,18 @@ export default class Chat extends Component {
     }
   }
 
+  setData = (data) => {
+    const {setDataDashboard} = this.props.route.params
+    setDataDashboard(data, this.state.customerId)
+    this.setState({fullName:data})
+  }
+
   render() {
     return (
       <View style={styles.containerChat}>
         <Toolbar
           leftElement="keyboard-arrow-left"
-          centerElement={this.props.route.params.data.fullName == "" ? this.props.route.params.data.phone : this.props.route.params.data.fullName}
+          centerElement={this.state.fullName}
           onLeftElementPress={() => this.onPressBack()}
           rightElement={{ menu: { icon: "more-vert", labels: ["Editar Usuario"] } }}
           onRightElementPress={ (option) => this.onPressMenu(option)}
@@ -403,7 +409,7 @@ export default class Chat extends Component {
             rightElement="close"
             onRightElementPress={() => this.setState({isVisibleModalEditCustomer:false})}
           />
-          <EditCustomer data={this.props.route.params.data}/>
+          <EditCustomer data={this.props.route.params.data} setData={this.setData}/>
         </Modal>
         <Modal visible={this.state.isVisibleModalTemplatesCustomer} animated>
           <Toolbar
