@@ -16,19 +16,30 @@ export const registerForPushNotificationsAsync = async () => {
       alert('Failed to get push token for push notification!');
       return;
     }
-    let token = await Notifications.getExpoPushTokenAsync({experienceId: '@mercately/mercately'});
+    const token = await Notifications.getExpoPushTokenAsync({experienceId: '@mercately/mercately'});
     globals.token = token.data
-    await AsyncStorage.setItem('PushNotificationToken', token);
+    await AsyncStorage.setItem('PushNotificationToken', token.data);
   } else {
     alert('Must use physical device for Push Notifications');
   }
+}
 
-  if (Platform.OS === 'android') {
-    Notifications.createChannelAndroidAsync('default', {
-      name: 'default',
-      sound: true,
-      priority: 'max',
-      vibrate: [0, 250, 250, 250],
-    });
-  }
+/**
+ * This listener is fired whenever a user taps on or interacts with a
+ * notification
+ * @param handler
+ */
+export const addNotificationResponseReceivedListener = (handler) => {
+  Notifications.addNotificationResponseReceivedListener(handler);
+}
+
+
+export const setForegroundNotificationHandler = () => {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+    }),
+  });
 }
