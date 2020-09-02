@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, TextInput, Keyboard, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
-import { Button } from 'react-native-material-ui';
+import { View, Text, TextInput, Keyboard, ActivityIndicator, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { ListItem, Button } from 'react-native-material-ui';
+import ActionSheet from "react-native-actions-sheet";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 // Api
@@ -15,6 +16,7 @@ export default class EditCustomer extends React.Component {
     super(props);
     this.state = {
       spinner: false,
+      spinnerAddTag: false,
       firstName: null,
       lastName: null,
       email: null,
@@ -26,7 +28,10 @@ export default class EditCustomer extends React.Component {
       idType: 0,
       placeholderNationalId: "9999999999",
       phone: null,
-      whatsappName: ""
+      whatsappName: "",
+      customerTags: [],
+      listTags: [],
+      textAddTag: ""
     };
   }
 
@@ -51,7 +56,9 @@ export default class EditCustomer extends React.Component {
           notes: response.customer.notes,
           placeholderNationalId: placeholderNationalId,
           phone: response.customer.phone,
-          whatsappName: response.customer.whatsapp_name
+          whatsappName: response.customer.whatsapp_name,
+          customerTags: response.customer.tags,
+          listTags: response.tags
         })
       } catch (error) {
         console.log('EDITCUSTOMER RESPONSE ERROR',error)
@@ -139,6 +146,125 @@ export default class EditCustomer extends React.Component {
         this.setState({idType:2, nationalId:"", placeholderNationalId:"1700000000001"})
         break;
     }
+  }
+
+  renderItemCustomerTags = (item) =>{
+    let tag = item.item
+    return(
+      <View style={styles.optionListTags}>
+        <Text style={{color:"#34aae1", margin:10}}>{tag.tag}</Text>
+        <TouchableOpacity style={{margin:10}} onPress={() => this.removeTag(tag.id)}>
+          <MaterialCommunityIcons name="close-circle" size={20} color="grey"/>
+        </TouchableOpacity>
+      </View>
+    )
+  }
+
+  removeTag = (id) => {
+    let data = {
+      "tag_id":id,
+      "chat_service":"whatsapp"
+    }
+    API.customerRemoveTag(this.customerRemoveTagResponse,data,this.props.data.id,true);
+  }
+
+  customerRemoveTagResponse = {
+    success: (response) => {
+      try {
+        this.setState({
+          customerTags:response.customer.tags,
+          listTags:response.tags
+        })
+      } catch (error) {
+        console.log('REMOVE TAG RESPONSE ERROR',error)
+      }
+    },
+    error: (err) => {
+      console.log('REMOVE TAG RESPONSE ERR',err)
+    }
+  }
+
+  renderItemListTags = (item) => {
+    let tag = item.item
+    return(
+      <ListItem
+        divider
+        centerElement={{
+          primaryText: tag.tag,
+        }}
+        onPress={() => this.selectTag(tag)}
+      />
+    )
+  }
+
+  selectTag = (tag) => {
+    let data = {
+      "tag_id":tag.id,
+      "chat_service":"whatsapp"
+    }
+    API.customerSelectTag(this.customerSelectTagResponse,data,this.props.data.id,true);
+  }
+
+  customerSelectTagResponse = {
+    success: (response) => {
+      try {
+        this.ActionSheet.setModalVisible(false);
+        this.setState({
+          customerTags:response.customer.tags,
+          listTags:response.tags
+        })
+      } catch (error) {
+        console.log('SELECT TAG RESPONSE ERROR',error)
+      }
+    },
+    error: (err) => {
+      console.log('SELECT TAG RESPONSE ERR',err)
+    }
+  }
+
+  ListEmptyComponent = () => {
+    return(
+      <Text style={{margin:5}}>Sin etiquetas</Text>
+    )
+  }
+
+  onPressAddTag = () => {
+    if (this.state.textAddTag == "") {
+      alert('Debe ingresar primero una etiqueta.')
+    } else if (this.state.textAddTag.length < 4) {
+      alert('Debe tener al menos 4 caracteres')
+    } else {
+      let data = {
+        "tag":this.state.textAddTag,
+        "chat_service":"whatsapp"
+      }
+      this.setState({spinnerAddTag:true})
+      API.customerAddTag(this.customerAddTagResponse,data,this.props.data.id,true);
+    }
+  }
+
+  customerAddTagResponse = {
+    success: (response) => {
+      try {
+        this.setState({
+          customerTags: response.customer.tags,
+          textAddTag: "",
+          listTags: response.tags,
+          spinnerAddTag:false
+        })
+      } catch (error) {
+        this.setState({spinnerAddTag:false})
+        console.log('ADD TAG RESPONSE ERROR',error)
+      }
+    },
+    error: (err) => {
+      this.setState({spinnerAddTag:false})
+      console.log('ADD TAG RESPONSE ERR',err)
+    }
+  }
+
+  onOpenActionSheet = () => {
+    this.ActionSheet.setModalVisible(true);
   }
 
   setFocus = (textField) =>{
@@ -240,7 +366,36 @@ export default class EditCustomer extends React.Component {
             value={this.state.province}
             keyboardType="default"
             returnKeyType={"next"}
+            onSubmitEditing={() => this.setFocus("textAddTag")}
+          />
+          <View style={[styles.chatFooter,{marginTop: 20}]}>
+            <Text>Etiquetas</Text>
+            <View style={styles.chatFooter}>
+              {this.state.spinnerAddTag == true ? (
+                <View style={{marginHorizontal:22}}>
+                  <ActivityIndicator size="small" color="black" />
+                </View>
+              ):(
+                <Button primary raised text="Agregar" upperCase={false} disabled={this.state.buttonSendDisabled} onPress={this.onPressAddTag} />
+              )}
+              <Button primary raised text="Seleccionar" upperCase={false} disabled={this.state.buttonSendDisabled} onPress={() => {this.onOpenActionSheet()}} style={{container:{marginLeft:10}}} />
+            </View>
+          </View>
+          <TextInput
+            ref={ref => (this.textAddTag = ref)}
+            style={styles.input}
+            placeholder="Ingrese Etiqueta"
+            onChangeText={textAddTag => this.setState({ textAddTag })}
+            value={this.state.textAddTag}
+            keyboardType="default"
+            returnKeyType={"next"}
             onSubmitEditing={() => this.setFocus("notesInput")}
+          />
+          <FlatList 
+            data = {this.state.customerTags}
+            renderItem = {this.renderItemCustomerTags}
+            keyExtractor={(item)=>item.toString()}
+            ListEmptyComponent={this.ListEmptyComponent}
           />
           <Text style={{marginTop: 20}}>Nota</Text>
           <TextInput
@@ -262,6 +417,14 @@ export default class EditCustomer extends React.Component {
         ):(
           <Button style={{container: [styles.enter,{marginHorizontal:10}], text: styles.texButton}} raised primary upperCase text="Actualizar" onPress={() => this.updateDetails()} />
         )}
+        <ActionSheet ref={o => this.ActionSheet = o} >
+          <FlatList 
+            data = {this.state.listTags}
+            renderItem = {this.renderItemListTags}
+            keyExtractor={(item)=>item.toString()}
+            ListEmptyComponent={this.ListEmptyComponent}
+          />
+        </ActionSheet>
       </View>
     );
   }
