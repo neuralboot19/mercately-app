@@ -141,13 +141,28 @@ export default class DashboardAdmin extends Component {
     }
   }
 
-  actionElementLeft() {
-    if (this.state.leftElementIcon == 'menu') {
-      this.drawer.openDrawer();
-      this.setState({leftElementIcon: 'close'})
-    } else {
-      this.drawer.closeDrawer();
-      this.setState({leftElementIcon: 'menu'})
+  actionElementLeft(event, drawer) {
+    switch (event) {
+      case 'tool':
+        if (drawer == undefined){
+          if (this.state.leftElementIcon == 'menu') {
+            this.drawer.openDrawer();
+            break;
+          } else {
+            this.drawer.closeDrawer();
+            break;
+          }
+        }
+      case 'Settling':
+        if (drawer == 'drawer'){
+          if (this.state.leftElementIcon == 'menu') {
+            this.setState({leftElementIcon: 'close'});
+            break;
+          } else {
+            this.setState({leftElementIcon: 'menu'});
+            break;
+          }
+        }
     }
   }
 
@@ -316,18 +331,13 @@ export default class DashboardAdmin extends Component {
             placeholder: 'Search',
             onChangeText: (search) => this.actionSearch(search)
           }}
-          style={{
-            container: {backgroundColor:'#fff'},
-            leftElement: {color:'#34aae1'},
-            titleText: {color:'#34aae1'},
-            rightElement: {color:'#34aae1'}
-          }}
-          onLeftElementPress={() => this.actionElementLeft()}
+          onLeftElementPress={() => this.actionElementLeft('tool')}
         />
         <DrawerLayoutAndroid
           ref={_drawer => (this.drawer = _drawer)}
           drawerWidth={250}
           renderNavigationView={() => DrawerContent }
+          onDrawerStateChanged={(int) => this.actionElementLeft(int,'drawer')}
         >
           <FlatList 
             data = {this.state.customersList}
