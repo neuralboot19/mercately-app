@@ -112,6 +112,13 @@ module.exports = StyleSheet.create({
     flexDirection:'row',
     justifyContent:'space-between',
     marginTop: 20
+  },
+  optionListTags: {
+    flexDirection:'row',
+    justifyContent:'space-between',
+    marginTop: 10,
+    backgroundColor:'#ececec',
+    borderRadius:3,
   }
   ////////////////////////// Style Edit CUstomer End  //////////////////////////
 });

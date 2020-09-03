@@ -42,6 +42,15 @@ export const API = {
   customersKarixWhatsappMessages: (onResponse, {}, id, page, isHeaderRequired) => {
     request(onResponse, {}, 'GET', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMERSLIST + "/" + id + "/messages?page=" + page, buildHeader());
   },
+  customerAddTag: (onResponse, data, id, isHeaderRequired) => {
+    request(onResponse, data, 'POST', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMER + id + "/add_tag", buildHeader());
+  },
+  customerRemoveTag: (onResponse, data, id, isHeaderRequired) => {
+    request(onResponse, data, 'DELETE', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMER + id + "/remove_customer_tag", buildHeader());
+  },
+  customerSelectTag: (onResponse, data, id, isHeaderRequired) => {
+    request(onResponse, data, 'POST', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMER + id + "/add_customer_tag", buildHeader());
+  },
   sendWhatsAppMessage: (onResponse, data, isHeaderRequired) => {
     request(onResponse, data, 'POST', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.SENDWHATSAPPMESSAGE, buildHeader());
   },
