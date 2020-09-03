@@ -22,7 +22,7 @@ import { NavigationContainer } from '@react-navigation/native'
 
 const uiTheme = {
   palette: {
-    primaryColor: "#34aae1",
+    primaryColor: "#782e79",
     accentColor: COLOR.blue500,
   },
   toolbar: {

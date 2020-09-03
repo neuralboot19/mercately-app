@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, FlatList, TouchableOpacity, DrawerLayoutAndroid, Alert, AsyncStorage, ActivityIndicator } from 'react-native';
-import { Toolbar, Badge, Avatar, Button } from 'react-native-material-ui';
+import { Toolbar, Badge, Button } from 'react-native-material-ui';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import Moment from 'moment';
 import 'moment/locale/es';
@@ -170,48 +170,39 @@ export default class DashboardAdmin extends Component {
     fullName = this.state.setEditCustomerId == customer.id ? this.state.setEditCustomerFullName : fullName
     let assignedAgent = customer.assigned_agent.full_name == ' ' ? customer.assigned_agent.email : customer.assigned_agent.full_name
     assignedAgent = assignedAgent.length > 20 ? assignedAgent.substr(-20, 15) + "..." : assignedAgent
-    let initials = customer.first_name && customer.last_name ? `${customer.first_name.charAt(0)} ${customer.last_name.charAt(0)}` : customer.whatsapp_name ? customer.whatsapp_name.charAt(0) : ''
+    let rDate = Moment(customer.recent_message_date).local();
+    let colorMoment = Moment().local().diff(rDate, 'hours') < 24 ? '#00A652' : '#999'
     let badgeCount = customer.unread_whatsapp_chat == true || customer["unread_whatsapp_message?"] == true
     let iconsName = customer.last_whatsapp_message.status == 'sent' ? 'check' : (customer.last_whatsapp_message.status == 'delivered' ? 'check-all' : ( customer.last_whatsapp_message.status == 'read' ? 'check-all' : 'sync'))
     let iconsColor = customer.last_whatsapp_message.status == 'sent' ? 'black' : (customer.last_whatsapp_message.status == 'delivered' ? 'black' : ( customer.last_whatsapp_message.status == 'read' ? '#34aae1' : 'black'))
     return(
       <TouchableOpacity style={styles.cardChatSelect} key={customer.id} onPress={() => this.onPressChat(fullName, customer.phone, customer.id, customer.whatsapp_opt_in, customer.recent_inbound_message_date)}>
-        <View>
+        <Text style={{fontSize:10, color:colorMoment, textAlign:'right'}}>{Moment(customer.recent_message_date).locale('es').fromNow()}</Text>
+        <Text style={{fontWeight:'bold', fontSize:16}}>{fullName}</Text>
+        <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+          <View style={{flexDirection:'row'}}>
+            {customer.last_whatsapp_message.direction == 'outbound' && customer['handle_message_events?'] == true ?
+              <View style={{flexDirection:'row', paddingRight:3}}>
+                {customer.active_bot ?
+                  <MaterialCommunityIcons name="robot" size={15} color="black" style={{marginRight:5}} />
+                : null}
+                <MaterialCommunityIcons name={iconsName} size={15} color={iconsColor} />
+              </View>
+            : null}
+            <Text style={{fontSize:12}}><Text style={{color:'#999'}}>Asignado a </Text><Text style={{color: assignedAgent != '' ? '' : '#34aae1'}}>{assignedAgent != '' ? assignedAgent : 'No asignado'}</Text></Text>
+          </View>
           {badgeCount && customer.unread_whatsapp_messages > 0 ?
             <Badge
               size={24}
               text={customer.unread_whatsapp_messages >= 100 ? "+99" : customer.unread_whatsapp_messages}
-              style={{ container: { top: -8, left: -10 } }}
-            >
-              <Avatar text={initials} />
-            </Badge>
-          :
-            <Avatar text={initials} />
-          }
+              style={{ container: { backgroundColor:'#00A652', top: -2, left: -26 } }}
+            ></Badge>
+          :null}
         </View>
-        <View style={{flexDirection:'column', alignItems:'flex-start', justifyContent:'space-between'}}>
-          <Text>{fullName}</Text>
-          <Text><Text style={{color:'#999'}}>Asignado a </Text><Text style={{color: assignedAgent != '' ? '' : '#34aae1'}}>{assignedAgent != '' ? assignedAgent : 'No asignado'}</Text></Text>
-        </View>
-        <View></View>
-        <View></View>
-        <View></View>
-        <View></View>
-        <View></View>
-        <View></View>
-        <View></View>
-        <View></View>
-        <View></View>
-        <View style={{flexDirection:'column', alignItems:'flex-end', justifyContent:'space-between'}}>
-          <Text style={{fontSize:10, color:'#999'}}>{Moment(customer.recent_message_date).locale('es').fromNow()}</Text>
-          {customer.last_whatsapp_message.direction == 'outbound' && customer['handle_message_events?'] == true ?
-            <View style={{flexDirection:'row'}}>
-              {customer.active_bot ?
-                <MaterialCommunityIcons name="robot" size={15} color="black" style={{marginRight:5}} />
-              : null}
-              <MaterialCommunityIcons name={iconsName} size={15} color={iconsColor} />
-            </View>
-          : null}
+        <View style={{flexDirection:'row', alignItems:'flex-end', justifyContent:'flex-end', marginTop:10}}>
+          {customer.tags.map( t => 
+            <Text style={{fontSize:10, backgroundColor:'#d5ecfd',padding:3, paddingHorizontal:6, marginLeft:5, borderRadius:3/2}}>{t.tag}</Text>
+          )}
         </View>
       </TouchableOpacity>
     )
@@ -225,6 +216,12 @@ export default class DashboardAdmin extends Component {
           <Text style={styles.descriptionText}>No tienes chat por el momento.</Text>
         </View>
       </View>
+    )
+  }
+
+  ItemSeparatorComponent = () =>{
+    return(
+      <View style={styles.separator} />
     )
   }
 
@@ -313,7 +310,7 @@ export default class DashboardAdmin extends Component {
       <View style={styles.container}>
         <Toolbar
           leftElement={this.state.leftElementIcon}
-          centerElement="Mercately"
+          centerElement="Chats"
           searchable={{
             autoFocus: true,
             placeholder: 'Search',
@@ -337,6 +334,7 @@ export default class DashboardAdmin extends Component {
             renderItem = {this.renderItem}
             keyExtractor={(item)=>item.id.toString()}
             ListEmptyComponent={this.ListEmptyComponent}
+            ItemSeparatorComponent={this.ItemSeparatorComponent}
             refreshing={this.state.isOnRefresh}
             onRefresh={this.onRefresh}
             onEndReached={this.handleLoadMore}
