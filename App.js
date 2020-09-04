@@ -40,36 +40,38 @@ export default function App () {
   const [isReady, setIsReady] = useState(false)
   const [isLogin, setIsLogin] = useState(false)
 
-  useEffect(async () => {
-      await registerForPushNotificationsAsync()
+  const initAsyncStorageVariables = async () => {
+    await registerForPushNotificationsAsync()
+    const item = await AsyncStorage.getItem('loginData')
+    const dataStorage = JSON.parse(item)
+    const header = await AsyncStorage.getItem('header')
+    const token = await AsyncStorage.getItem('PushNotificationToken')
+    if (dataStorage !== null) {
+      globals.token = token || ''
+      globals.header = JSON.parse(header) || ''
+      globals.id = dataStorage.data.attributes.id || ''
+      globals.type = dataStorage.type || ''
+      globals.admin = dataStorage.data.attributes.admin || ''
+      globals.email = dataStorage.data.attributes.email || ''
+      globals.first_name = dataStorage.data.attributes.first_name || ''
+      globals.last_name = dataStorage.data.attributes.last_name || ''
+      globals.retailer_integration = dataStorage.data.attributes.retailer_integration || ''
+      setIsLogin(true)
+      setIsReady(true)
+    } else {
+      globals.token = token || ''
+      setIsReady(true)
+    }
+  }
+
+  useEffect(() => {
       addNotificationResponseReceivedListener(_handleNotification)
-      AsyncStorage.getItem('loginData').then((item) => {
-        const dataStorage = JSON.parse(item)
-        AsyncStorage.getItem('header').then((header) => {
-          AsyncStorage.getItem('PushNotificationToken').then((token) => {
-            if(dataStorage !== null){
-              globals.token = token || '';
-              globals.header = JSON.parse(header) || '';
-              globals.id = dataStorage.data.attributes.id || '';
-              globals.type = dataStorage.type || '';
-              globals.admin = dataStorage.data.attributes.admin || '';
-              globals.email = dataStorage.data.attributes.email || '';
-              globals.first_name = dataStorage.data.attributes.first_name || '';
-              globals.last_name = dataStorage.data.attributes.last_name || '';
-              globals.retailer_integration = dataStorage.data.attributes.retailer_integration || '';
-              setIsLogin(true)
-              setIsReady(true)
-            }else{
-              globals.token = token || '';
-              setIsReady(true)
-            }
-          })
-        })
-      })
+      initAsyncStorageVariables()
     }
     , [])
 
-  const _handleNotification = notification => {
+  const _handleNotification = async notification => {
+    await initAsyncStorageVariables()
     API.customer(onGetCustomer, {},
       notification.notification.request.content.data.customer_id, true)
   }
