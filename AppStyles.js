@@ -3,7 +3,7 @@ import {StyleSheet} from 'react-native'
 module.exports = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4F5F7',
+    backgroundColor: '#FFF',
     justifyContent: 'center'
   },
   containerLogin: {
@@ -50,11 +50,11 @@ module.exports = StyleSheet.create({
     marginHorizontal: 10,
     marginVertical: 5,
     marginTop: 10,
-    padding:5,
-    borderRadius: 10 / 2,
-    backgroundColor: "#FFF",
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    padding:5
+  },
+  separator: {
+    borderBottomWidth:1,
+    borderColor:'#34aae1'
   },
   ///////////////////////////////// Style Chat /////////////////////////////////
   containerChat: {
