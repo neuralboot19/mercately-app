@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Text, TextInput, Keyboard, ActivityIndicator, ScrollView, TouchableOpacity, FlatList } from 'react-native';
-import { ListItem, Button } from 'react-native-material-ui';
-import ActionSheet from "react-native-actions-sheet";
+import { View, TextInput, Keyboard, ActivityIndicator, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { Button, Text, Picker, Icon } from 'native-base';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 // Api
@@ -31,7 +30,8 @@ export default class EditCustomer extends React.Component {
       whatsappName: "",
       customerTags: [],
       listTags: [],
-      textAddTag: ""
+      textAddTag: "",
+      selected: undefined
     };
   }
 
@@ -196,19 +196,28 @@ export default class EditCustomer extends React.Component {
       />
     )
   }
-
-  selectTag = (tag) => {
+  onValueChange(tag){
+    console.log("evaluando aquiiiiiiiiii",tag)
     let data = {
-      "tag_id":tag.id,
+      "tag_id":tag,
       "chat_service":"whatsapp"
     }
     API.customerSelectTag(this.customerSelectTagResponse,data,this.props.data.id,true);
   }
 
+  pickerItem = () => {
+    let newDate = this.state.listTags.map((d)=>d)
+    newDate.push({id:"",tag:"Seleccionar"})
+    newDate.sort((a, b) => a < b)
+    let item = newDate ? newDate.map(t =>
+      <Picker.Item label={t.tag} value={t.id} />
+    ) : <Picker.Item label="Agrege una etiqueta" value="" />
+    return item
+  }
+
   customerSelectTagResponse = {
     success: (response) => {
       try {
-        this.ActionSheet.setModalVisible(false);
         this.setState({
           customerTags:response.customer.tags,
           listTags:response.tags
@@ -261,10 +270,6 @@ export default class EditCustomer extends React.Component {
       this.setState({spinnerAddTag:false})
       console.log('ADD TAG RESPONSE ERR',err)
     }
-  }
-
-  onOpenActionSheet = () => {
-    this.ActionSheet.setModalVisible(true);
   }
 
   setFocus = (textField) =>{
@@ -368,18 +373,27 @@ export default class EditCustomer extends React.Component {
             returnKeyType={"next"}
             onSubmitEditing={() => this.setFocus("textAddTag")}
           />
-          <View style={[styles.chatFooter,{marginTop: 20}]}>
-            <Text>Etiquetas</Text>
-            <View style={styles.chatFooter}>
-              {this.state.spinnerAddTag == true ? (
-                <View style={{marginHorizontal:22}}>
-                  <ActivityIndicator size="small" color="black" />
-                </View>
-              ):(
-                <Button primary raised text="Agregar" upperCase={false} disabled={this.state.buttonSendDisabled} onPress={this.onPressAddTag} />
-              )}
-              <Button primary raised text="Seleccionar" upperCase={false} disabled={this.state.buttonSendDisabled} onPress={() => {this.onOpenActionSheet()}} style={{container:{marginLeft:10}}} />
-            </View>
+          <View style={[styles.selectUpdateCustomer,{marginTop: 20}]}>
+            <Text>Etiquetas:</Text>
+            <Picker
+              mode="dropdown"
+              iosIcon={<Icon name="arrow-down" />}
+              placeholder="Seleccionar"
+              placeholderStyle={{ color: "#bfc6ea" }}
+              placeholderIconColor="#007aff"
+              style={{ width: undefined }}
+              selectedValue={this.state.selected}
+              onValueChange={this.onValueChange.bind(this)}
+            >
+              {this.pickerItem()}
+            </Picker>
+            {this.state.spinnerAddTag == true ? (
+              <View style={{marginHorizontal:22}}>
+                <ActivityIndicator size="small" color="black" />
+              </View>
+            ):(
+              <Button onPress={this.onPressAddTag}><Text>Agregar</Text></Button>
+            )}
           </View>
           <TextInput
             ref={ref => (this.textAddTag = ref)}
@@ -415,16 +429,8 @@ export default class EditCustomer extends React.Component {
             <ActivityIndicator size="small" color="#34aae1" />
           </View>
         ):(
-          <Button style={{container: [styles.enter,{marginHorizontal:10}], text: styles.texButton}} raised primary upperCase text="Actualizar" onPress={() => this.updateDetails()} />
+          <Button full style={[styles.enter,{marginHorizontal:10}]}  onPress={() => this.updateDetails()}><Text>Actualizar</Text></Button>
         )}
-        <ActionSheet ref={o => this.ActionSheet = o} >
-          <FlatList 
-            data = {this.state.listTags}
-            renderItem = {this.renderItemListTags}
-            keyExtractor={(item)=>item.toString()}
-            ListEmptyComponent={this.ListEmptyComponent}
-          />
-        </ActionSheet>
       </View>
     );
   }

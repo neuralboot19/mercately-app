@@ -44,7 +44,8 @@ module.exports = StyleSheet.create({
   texButton: {
     textTransform: "capitalize",
     fontWeight: 'bold',
-    fontSize: 16
+    color: '#fff',
+    textTransform: 'uppercase'
   },
   cardChatSelect: {
     marginHorizontal: 10,
@@ -62,30 +63,35 @@ module.exports = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-between'
   },
+  image: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center"
+  },
   chatMain: {
     flex:1,
     marginHorizontal:10,
     flexDirection:'column',
     justifyContent:'flex-end'
   },
-  chatContainer: {
-    marginVertical:5,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
+  balloon: {
+    maxWidth: '80%',
+    paddingHorizontal: 6,
+    paddingVertical: 5,
+    borderRadius: 3,
+    minWidth: '45%'
+  },
+  headerMessage: {
+    fontSize:16,
+    paddingBottom:3
   },
   chatText: {
-    padding:10,
-    fontSize:16,
-    borderTopLeftRadius:10,
-    borderTopRightRadius:10,
-    width:'75%'
+    fontSize:14,
+    marginRight:10
   },
   footerMessage: {
     flexDirection:'row',
-    width:'75%',
-    padding:10,
-    borderBottomLeftRadius:10,
-    borderBottomRightRadius:10
+    justifyContent:'flex-end',
   },
   chatFooter: {
     flexDirection: "row",
@@ -93,16 +99,27 @@ module.exports = StyleSheet.create({
     justifyContent: "space-between",
     backgroundColor: "transparent"
   },
-  inputMesage: {
+  selectUpdateCustomer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  inputMessage: {
     flex:1,
-    fontSize: 20,
-    fontWeight: "600",    
+    backgroundColor: "#FFF",
+    borderRadius:22,
+    borderColor: "#cecece",
+    marginHorizontal:10,
+    marginVertical:5,
+    color:"#514E5A",
+    fontSize:16,
+    paddingHorizontal:20
+  },
+  inputMessageButton: {
     marginHorizontal:10,
     marginVertical:5,
     backgroundColor:"#34aae1",
-    borderRadius:20,
-    paddingHorizontal:20,
-    paddingVertical:8,
+    borderRadius:5,
     color:"#514E5A"
   },
   /////////////////////////////// Style Chat End ///////////////////////////////

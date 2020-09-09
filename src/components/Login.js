@@ -1,6 +1,6 @@
 import React from 'react';
-import {View,Text,Alert,TextInput,Keyboard,ActivityIndicator,AsyncStorage,KeyboardAvoidingView,Image} from 'react-native';
-import { Button } from 'react-native-material-ui';
+import { View, Alert, TextInput, Keyboard, ActivityIndicator, AsyncStorage, KeyboardAvoidingView, Image } from 'react-native';
+import { Container, Button, Text } from 'native-base';
 import { API } from '../util/api';
 
 // Globals
@@ -71,7 +71,7 @@ export default class Login extends React.Component {
   
   render(){
     return (
-      <View style={styles.containerLogin}>
+      <Container style={styles.containerLogin}>
         <KeyboardAvoidingView behavior="padding" enabled style={{marginHorizontal: 25}}>
           <Image source={require('../../assets/logo.png')} style={{width: 350, height: 100}} />
           <Text style={styles.header}>Iniciar Sesión</Text>
@@ -102,11 +102,13 @@ export default class Login extends React.Component {
                 <ActivityIndicator size="small" color="#34aae1" />
               </View>
             ):(
-              <Button style={{container: styles.enter, text: styles.texButton}} raised primary upperCase text="Ingresar" onPress={this.login} />
+              <Button full style={styles.enter} onPress={this.login}>
+                <Text style={styles.texButton}>Ingresar</Text>
+              </Button>
             )}
           </View>
         </KeyboardAvoidingView>
-      </View>
+      </Container>
     );
   }
 }

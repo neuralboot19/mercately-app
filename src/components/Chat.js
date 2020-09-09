@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { View, TextInput, Text, Image, TouchableOpacity, Modal, Linking, FlatList, ActivityIndicator, Alert } from 'react-native';
-import { Toolbar, Button } from 'react-native-material-ui';
-import { Entypo, MaterialCommunityIcons } from '@expo/vector-icons';
+import { View, Image, TouchableOpacity, Modal, Linking, FlatList, ActivityIndicator, Alert, ImageBackground, TextInput } from 'react-native';
+import { Button, Header, Left, Body, Right, Title, Text, Subtitle, Item, Icon } from 'native-base';
+import { Entypo, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 import Moment from 'moment';
 import 'moment/locale/es';
@@ -44,7 +44,8 @@ export default class Chat extends Component {
       canWrite: true,
       whatsappOptIn: this.props.route.params.data.whatsapp_opt_in,
       gupshupIntegrated: globals.retailer_integration,
-      fullName: this.props.route.params.data.fullName == "" ? this.props.route.params.data.phone : this.props.route.params.data.fullName
+      fullName: !this.props.route.params.data.fullName ? this.props.route.params.data.phone : this.props.route.params.data.fullName,
+      assignedAgent: !this.props.route.params.data.assigned_agent ? 'No asignado' : this.props.route.params.data.assigned_agent
     };
     this.socket = io(globals.url_socket_io, {jsonp: true});
     this.socket.on('connect', () => {this.socket.emit('create_room', globals.id)});
@@ -107,71 +108,78 @@ export default class Chat extends Component {
   renderItem = (item) =>{
     let message = item.item
     let stylesChatContainer = []
-    let stylesChatText = []
-    let stylesFooterMessage = []
+    let stylesBalloon = []
+    let stylesHeaderMessage = []
     let icon = ''
+    let titleHeader = ''
     switch (message.direction) {
       case 'outbound':
-        stylesChatContainer = [styles.chatContainer,{alignItems:"flex-end"}]
-        stylesChatText = [styles.chatText,{backgroundColor:"#ececec"}]
-        stylesFooterMessage = [styles.footerMessage,{backgroundColor:"#ececec", justifyContent:"flex-end"}]
+        stylesChatContainer = [{marginVertical:5, alignItems:'flex-end'}]
+        stylesBalloon = [styles.balloon, {backgroundColor: '#c4e8f7'}]
+        stylesHeaderMessage = [styles.headerMessage, {color:'#3cb4e5'}]
         icon = 'see'
+        titleHeader = this.props.route.params.data.assigned_agent
         break;
       case 'inbound':
-        stylesChatContainer = [styles.chatContainer,{alignItems:"flex-start"}]
-        stylesChatText = [styles.chatText,{backgroundColor:"#cecece"}]
-        stylesFooterMessage = [styles.footerMessage,{backgroundColor:"#cecece"}]
+        stylesChatContainer = [{marginVertical:5, alignItems:'flex-start'}]
+        stylesBalloon = [styles.balloon, {backgroundColor: '#f7f7f7'}]
+        stylesHeaderMessage = [styles.headerMessage, {fontWeight: 'bold', paddingVertical:6}]
+        titleHeader = this.state.fullName
         break;
     }
     let iconsName = message.status == 'sent' ? 'check' : (message.status == 'delivered' ? 'check-all' : ( message.status == 'read' ? 'check-all' : 'sync'))
-    let iconsColor = message.status == 'sent' ? 'black' : (message.status == 'delivered' ? 'black' : ( message.status == 'read' ? '#34aae1' : 'black'))
+    let iconsColor = message.status == 'sent' ? 'black' : (message.status == 'delivered' ? 'black' : ( message.status == 'read' ? '#782e79' : 'black'))
     return(
       <View style={stylesChatContainer}>
-        {message.content_type == 'text' && (
-          <Text style={stylesChatText}>{message.content_text}</Text>
-        )}
-        {message.content_type == 'location' && (
-          <TouchableOpacity style={[stylesChatText,{flexDirection:'row', justifyContent:'space-between'}]} onPress={() => {Linking.openURL(`https://www.google.com/maps/place/${message.content_location_latitude},${message.content_location_longitude}`)}} >
-            <Text>Ver ubucación Google Map</Text>
-            <Entypo name="location" size={20} color={iconsColor} />
-          </TouchableOpacity>
-        )}
-        {message.content_type == 'media' && message.content_media_type == 'document' && (
-          <TouchableOpacity style={[stylesChatText,{flexDirection:'row', justifyContent:'space-between'}]} onPress={() => {Linking.openURL(message.content_media_url)}} >
-            <Text>{message.content_media_caption}</Text>
-            <MaterialCommunityIcons name="download" size={20} color={iconsColor} />
-          </TouchableOpacity>
-        )}
-        {message.content_type == 'media' && (message.content_media_type == 'voice' || message.content_media_type == 'audio') && (
-          <TouchableOpacity style={[stylesChatText,{flexDirection:'row', justifyContent:'space-between'}]} onPress={() => this.state.statusPlaySound == "Pausar" ? this.onPressStopSound(message.content_media_url) : this.onPressPlaySound(message.content_media_url)} >
-            <Text>{this.state.statusPlaySound} Audio</Text>
-            <MaterialCommunityIcons name={this.state.statusPlaySound == "Pausar" ? "reload" : "play"} size={20} color={iconsColor} />
-          </TouchableOpacity>
-        )}
-        {message.content_type == 'media' && message.content_media_type == 'video' && (
-          <Video
-            source={{uri: message.content_media_url}}
-            rate={1.0}
-            volume={1.0}
-            isMuted={false}
-            resizeMode="cover"
-            shouldPlay={false}
-            isLooping={false}
-            useNativeControls
-            style={[stylesChatText,{height:250}]}
-          >
-          </Video>
-        )}
-        {message.content_type == 'media' && message.content_media_type == 'image' ?
-          <TouchableOpacity style={{height:200, width:'75%'}} onPress={() => this.onPressImg(message.content_media_url)} >
-            <Image source={{uri: message.content_media_url}} style={{flex:1, borderTopLeftRadius:10, borderTopRightRadius:10}} />
-          </TouchableOpacity>
-        : null}
-        <View style={stylesFooterMessage}>
-          <Text style={{fontSize:10, color:'#999'}}>{Moment(message.created_time).locale('es').fromNow()}</Text>
-          {icon == 'see' ?
-            <MaterialCommunityIcons name={iconsName} size={15} color={iconsColor} style={{marginHorizontal:5}} />
-          : null}
+        <View style={stylesBalloon}>
+          {titleHeader ? <Text style={stylesHeaderMessage}>{titleHeader}</Text> : null }
+          {message.content_type == 'location' && (
+            <TouchableOpacity style={[styles.chatText,{flexDirection:'row', justifyContent:'space-between'}]} onPress={() => {Linking.openURL(`https://www.google.com/maps/place/${message.content_location_latitude},${message.content_location_longitude}`)}} >
+              <Text>Ver ubucación Google Map   </Text>
+              <Entypo name="location" size={20} color={iconsColor} />
+            </TouchableOpacity>
+          )}
+          {message.content_type == 'media' && message.content_media_type == 'document' && (
+            <TouchableOpacity style={[styles.chatText,{flexDirection:'row', justifyContent:'space-between'}]} onPress={() => {Linking.openURL(message.content_media_url)}} >
+              <Text>{!message.content_media_caption ? 'Descargar Documento   ' : message.content_media_caption}</Text>
+              <MaterialCommunityIcons name="download" size={20} color={iconsColor} />
+            </TouchableOpacity>
+          )}
+          {message.content_type == 'media' && (message.content_media_type == 'voice' || message.content_media_type == 'audio') && (
+            <TouchableOpacity style={[styles.chatText,{flexDirection:'row', justifyContent:'space-between'}]} onPress={() => this.state.statusPlaySound == "Pausar" ? this.onPressStopSound(message.content_media_url) : this.onPressPlaySound(message.content_media_url)} >
+              <Text>{this.state.statusPlaySound} Audio   </Text>
+              <MaterialCommunityIcons name={this.state.statusPlaySound == "Pausar" ? "reload" : "play"} size={20} color={iconsColor} />
+            </TouchableOpacity>
+          )}
+          {message.content_type == 'media' && message.content_media_type == 'video' && (
+            <Video
+              source={{uri: message.content_media_url}}
+              rate={1.0}
+              volume={1.0}
+              isMuted={false}
+              resizeMode="cover"
+              shouldPlay={false}
+              isLooping={false}
+              useNativeControls
+              style={[styles.chatText,{height:300,width:230,borderRadius:10}]}
+            />
+          )}
+          {message.content_type == 'media' && message.content_media_type == 'image' && (
+            <TouchableOpacity style={{height:200, width:200}} onPress={() => this.onPressImg(message.content_media_url)} >
+              <Image source={{uri: message.content_media_url}} style={{flex:1, borderRadius:10}} />
+            </TouchableOpacity>
+          )}
+          {message.content_type == 'text' && (
+            <View style={{flexDirection:'row', alignItems:'center', justifyContent:'space-between'}}>
+              <Text style={styles.chatText}>{message.content_text}</Text>
+            </View>
+          )}
+          <View style={styles.footerMessage}>
+            <Text style={{fontSize:10, color:'#999'}}>{Moment(message.created_time).locale('es').fromNow()}</Text>
+            {icon == 'see' ?
+              <MaterialCommunityIcons name={iconsName} size={15} color={iconsColor} style={{marginHorizontal:5}} />
+            : null}
+          </View>
         </View>
       </View>
     )
@@ -182,7 +190,7 @@ export default class Chat extends Component {
   }
 
   onPressSendMessage = (data) => {
-    let message = data == "" ? this.state.messageText : data
+    let message = this.state.messageText ? this.state.messageText : data
     let template = data == "" ? false : true
     this.setState({spinner:true, isVisibleModalTemplatesCustomer:false})
     let endData = {
@@ -197,7 +205,9 @@ export default class Chat extends Component {
   sendWhatsAppMessageResponse = {
     success: (response) => {
       try {
-        this.textMenssage.clear()
+        if (!this.state.messageText == ""){
+          this.textMenssage.clear()
+        }
         this.setState({spinner:false,buttonSendDisabled:true})
         console.log('SEND MESSAGE RESPONSE responseeeeeeeeee')
       } catch (error) {
@@ -300,10 +310,8 @@ export default class Chat extends Component {
     })
   }
 
-  onPressMenu = (option) => {
-    if (option.index == 0) {
-      this.setState({isVisibleModal:false, isVisibleModalEditCustomer:true})
-    }
+  onPressMenu = () => {
+    this.setState({isVisibleModal:false, isVisibleModalEditCustomer:true})
   }
 
   inputMessage = (messageText) => {
@@ -349,49 +357,69 @@ export default class Chat extends Component {
   render() {
     return (
       <View style={styles.containerChat}>
-        <Toolbar
-          leftElement="keyboard-arrow-left"
-          centerElement={this.state.fullName}
-          onLeftElementPress={() => this.onPressBack()}
-          rightElement={{ menu: { icon: "more-vert", labels: ["Editar Usuario"] } }}
-          onRightElementPress={ (option) => this.onPressMenu(option)}
-        />
-        <View style={styles.chatMain}>
-          <FlatList
-            inverted
-            data = {this.state.messages}
-            renderItem = {this.renderItem}
-            keyExtractor={(item)=>item.id.toString()}
-          />
-        </View>
-        {!this.state.canWrite ?
-          <View style={styles.chatFooter}>
-            <Button style={{container:[styles.inputMesage,{paddingVertical:22}], text:{color:'white'}}} text="Canal Cerrado. Puedes enviar una plantilla" upperCase={false} onPress={this.openTemplate} />
-          </View>
-        :
-          <View style={styles.chatFooter}>
-            <TextInput
-              ref={ref => (this.textMenssage = ref)}
-              style={styles.inputMesage}
-              onChangeText={messageText => this.inputMessage(messageText)}
-              value={this.state.messageText}
-              keyboardType="default"
-              multiline
+        <Header>
+          <Left>
+            <Button transparent onPress={() => this.onPressBack()}>
+              <Entypo name='chevron-small-left' size={24} color='white' />
+            </Button>
+          </Left>
+          <Body>
+            <Button full transparent iconLeft style={{paddingBottom:0}} onPress={() => this.onPressMenu()}>
+              <Left>
+                <Title>{this.state.fullName}</Title>
+              </Left>
+              <MaterialCommunityIcons name='account-edit' size={24} color='white' />
+            </Button>
+            <Subtitle style={{marginBottom:16, fontSize:10}}><Text style={{color:'#ececec', fontSize:10}}>Asignado a: </Text>{this.state.assignedAgent}</Subtitle>
+          </Body>
+          <Right />
+        </Header>
+        <ImageBackground source={require('../../assets/background_chat.png')} style={styles.image}>
+          <View style={styles.chatMain}>
+            <FlatList
+              inverted
+              data = {this.state.messages}
+              renderItem = {this.renderItem}
+              keyExtractor={(item)=>item.id.toString()}
             />
-            {this.state.spinner == true ? (
-              <View style={{marginHorizontal:22}}>
-                <ActivityIndicator size="small" color="black" />
-              </View>
-            ):(
-              <Button text="" upperCase={false} icon="send" disabled={this.state.buttonSendDisabled} onPress={this.onPressSendMessage} />
-            )}
           </View>
-        }
+        </ImageBackground>
+        <ImageBackground source={require('../../assets/background_chat.png')} style={{}}>
+          {!this.state.canWrite ?
+            <Button full style={styles.inputMessageButton} onPress={this.openTemplate}>
+              <Text info>Canal Cerrado. Puedes enviar una plantilla</Text>
+            </Button>
+          :
+            <View style={styles.chatFooter}>
+              <TextInput
+                ref={ref => (this.textMenssage = ref)}
+                style={styles.inputMessage}
+                placeholder='Escribe un mensaje aqui'
+                onChangeText={messageText => this.inputMessage(messageText)}
+                value={this.state.messageText}
+                keyboardType="default"
+                multiline
+              />
+              {this.state.spinner == true ? (
+                <View style={{marginHorizontal:10}}>
+                  <ActivityIndicator size="small" color="black" />
+                </View>
+              ):(
+                <Button iconLeft info full rounded style={{paddingHorizontal:10, marginRight:10, marginVertical:5}} disabled={this.state.buttonSendDisabled} onPress={this.onPressSendMessage}>
+                  <FontAwesome name="send" size={24} color="white" />
+                </Button>
+              )}
+            </View>
+          }
+        </ImageBackground>
         <Modal visible={this.state.isVisibleModal} animated>
-          <Toolbar
-            rightElement="close"
-            onRightElementPress={() => this.setState({isVisibleModal:false})}
-          />
+          <Header>
+            <Right>
+              <Button transparent onPress={() => this.setState({isVisibleModal:false})}>
+                <Icon name='close' />
+              </Button>
+            </Right>
+          </Header>
           <ReactNativeZoomableView
             maxZoom={1.5}
             minZoom={0.5}
@@ -404,19 +432,29 @@ export default class Chat extends Component {
           </ReactNativeZoomableView>
         </Modal>
         <Modal visible={this.state.isVisibleModalEditCustomer} animated>
-          <Toolbar
-            centerElement="Detalles"
-            rightElement="close"
-            onRightElementPress={() => this.setState({isVisibleModalEditCustomer:false})}
-          />
+          <Header>
+            <Body>
+              <Title>Detalles</Title>
+            </Body>
+            <Right>
+              <Button transparent onPress={() => this.setState({isVisibleModalEditCustomer:false})}>
+                <Icon name='close' />
+              </Button>
+            </Right>
+          </Header>
           <EditCustomer data={this.props.route.params.data} setData={this.setData}/>
         </Modal>
         <Modal visible={this.state.isVisibleModalTemplatesCustomer} animated>
-          <Toolbar
-            centerElement="Plantillas"
-            rightElement="close"
-            onRightElementPress={() => this.setState({isVisibleModalTemplatesCustomer:false})}
-          />
+          <Header>
+            <Body>
+              <Title>Plantillas</Title>
+            </Body>
+            <Right>
+              <Button transparent onPress={() => this.setState({isVisibleModalTemplatesCustomer:false})}>
+                <Icon name='close' />
+              </Button>
+            </Right>
+          </Header>
           <TemplatesCustomer setSendMessageTemplate={this.onPressSendMessage} />
         </Modal>
       </View>

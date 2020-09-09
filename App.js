@@ -2,10 +2,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {AsyncStorage, View, ActivityIndicator} from 'react-native';
 
+// React Base
+import { StyleProvider } from 'native-base';
+import getTheme from './native-base-theme/components';
+import material from './native-base-theme/variables/material';
+
 // Globals
 import * as globals from './src/util/globals';
 
 // Navigator
+import { NavigationContainer } from '@react-navigation/native'
 import Routes from './src/navigator/Routes';
 
 // Notification Push
@@ -15,22 +21,8 @@ import {
   setForegroundNotificationHandler,
 } from './src/services/PushNotification'
 
-// Material UI to React Native
-import { COLOR, ThemeContext, getTheme } from 'react-native-material-ui'
+// API
 import { API } from './src/util/api'
-import { NavigationContainer } from '@react-navigation/native'
-
-const uiTheme = {
-  palette: {
-    primaryColor: "#782e79",
-    accentColor: COLOR.blue500,
-  },
-  toolbar: {
-    container: {
-      height: 50,
-    },
-  },
-};
 
 setForegroundNotificationHandler()
 
@@ -117,10 +109,10 @@ export default function App () {
     )
   }
   return (
-    <ThemeContext.Provider value={getTheme(uiTheme)}>
+    <StyleProvider style={getTheme(material)}>
       <NavigationContainer ref={navigationRef}>
         <Routes isLogin={isLogin}/>
       </NavigationContainer>
-    </ThemeContext.Provider>
+    </StyleProvider>
   )
 }
