@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, Text, ScrollView, Alert, FlatList, TextInput, Modal } from 'react-native';
-import { ListItem, Toolbar, Button } from 'react-native-material-ui';
+import { View, ScrollView, Alert, FlatList, TextInput, Modal } from 'react-native';
+import { Container, Header, Content, Body, ListItem, Text, Title, Button, Right, Icon } from 'native-base';
 
 // Globals
 import * as globals from '../util/globals';
@@ -48,13 +48,9 @@ export default class Templates extends Component {
   renderItem = (item) =>{
     let template = item.item
     return(
-      <ListItem
-        divider
-        centerElement={{
-          primaryText: template.text,
-        }}
-        onPress={() => this.selectTemplate(template)}
-      />
+      <ListItem onPress={() => this.selectTemplate(template)}>
+        <Text>{template.text}</Text>
+      </ListItem>
     )
   }
 
@@ -130,28 +126,35 @@ export default class Templates extends Component {
   render() {
     let screen = this.state.templateEdited ? this.getTextInputEdited() : this.getTextInput()
     return (
-      <View style={[styles.containerContent,{marginVertical:0}]}>
-        <ScrollView bounces={false}>
-          <FlatList
-            data = {this.state.templates}
-            renderItem = {this.renderItem}
-            keyExtractor={(item)=>item.id.toString()}
-          />
-        </ScrollView>
+      <Container>
+        <Content>
+          <ScrollView bounces={false}>
+            <FlatList
+              data = {this.state.templates}
+              renderItem = {this.renderItem}
+              keyExtractor={(item)=>item.id.toString()}
+            />
+          </ScrollView>
+        </Content>
         {this.state.modalEdited && (
           <Modal visible={this.state.modalEdited}>
             <View style={[styles.containerChat,{marginTop:0}]}>
-              <Toolbar
-                centerElement="Edición de Plantilla"
-                rightElement="close"
-                onRightElementPress={() => this.setState({modalEdited:false})}
-              />
+              <Header>
+                <Body>
+                  <Title>Edición de Plantilla</Title>
+                </Body>
+                <Right>
+                  <Button transparent onPress={() => this.setState({modalEdited:false})}>
+                    <Icon name='close' />
+                  </Button>
+                </Right>
+              </Header>
               <View style={{marginHorizontal:21, marginTop:13}}>{screen}</View>
-              <Button style={{container: [styles.enter,{marginHorizontal:20}], text: styles.texButton}} raised primary upperCase text="Enviar" onPress={this.onPressSendTemplate} />
+              <Button full style={[styles.enter,{marginHorizontal:20}]} onPress={this.onPressSendTemplate}><Text>Enviar</Text></Button>
             </View>
           </Modal>
         )}
-      </View>
+      </Container>
     )
   }
 }

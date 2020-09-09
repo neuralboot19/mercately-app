@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, Text, FlatList, TouchableOpacity, DrawerLayoutAndroid, Alert, AsyncStorage, ActivityIndicator } from 'react-native';
-import { Toolbar, Badge, Button } from 'react-native-material-ui';
+import { View, FlatList, TouchableOpacity, DrawerLayoutAndroid, Alert, AsyncStorage, ActivityIndicator } from 'react-native';
+import { Container, Header, Left, Body, Right, Button, Icon, Title, Badge, Text, Subtitle } from 'native-base';
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 import Moment from 'moment';
 import 'moment/locale/es';
@@ -166,8 +166,8 @@ export default class DashboardAdmin extends Component {
     }
   }
 
-  onPressChat = (fullName, phone, id, whatsappOptIn, recentMessageDate) => {
-    let data = {id:id, fullName:fullName, phone:phone, whatsapp_opt_in:whatsappOptIn, recent_inbound_message_date:recentMessageDate}
+  onPressChat = (fullName, phone, id, whatsappOptIn, recentMessageDate, assignedAgent) => {
+    let data = {id:id, fullName:fullName, phone:phone, whatsapp_opt_in:whatsappOptIn, recent_inbound_message_date:recentMessageDate, assigned_agent:assignedAgent}
     this.props.navigation.navigate('Chat',{data, setDataDashboard:this.setDataDashboard})
   }
 
@@ -184,16 +184,15 @@ export default class DashboardAdmin extends Component {
     }
     fullName = this.state.setEditCustomerId == customer.id ? this.state.setEditCustomerFullName : fullName
     let assignedAgent = customer.assigned_agent.full_name == ' ' ? customer.assigned_agent.email : customer.assigned_agent.full_name
-    assignedAgent = assignedAgent.length > 20 ? assignedAgent.substr(-20, 15) + "..." : assignedAgent
     let rDate = Moment(customer.recent_message_date).local();
     let colorMoment = Moment().local().diff(rDate, 'hours') < 24 ? '#00A652' : '#999'
     let badgeCount = customer.unread_whatsapp_chat == true || customer["unread_whatsapp_message?"] == true
     let iconsName = customer.last_whatsapp_message.status == 'sent' ? 'check' : (customer.last_whatsapp_message.status == 'delivered' ? 'check-all' : ( customer.last_whatsapp_message.status == 'read' ? 'check-all' : 'sync'))
     let iconsColor = customer.last_whatsapp_message.status == 'sent' ? 'black' : (customer.last_whatsapp_message.status == 'delivered' ? 'black' : ( customer.last_whatsapp_message.status == 'read' ? '#34aae1' : 'black'))
     return(
-      <TouchableOpacity style={styles.cardChatSelect} key={customer.id} onPress={() => this.onPressChat(fullName, customer.phone, customer.id, customer.whatsapp_opt_in, customer.recent_inbound_message_date)}>
+      <TouchableOpacity style={styles.cardChatSelect} key={customer.id} onPress={() => this.onPressChat(fullName, customer.phone, customer.id, customer.whatsapp_opt_in, customer.recent_inbound_message_date, assignedAgent)}>
         <Text style={{fontSize:10, color:colorMoment, textAlign:'right'}}>{Moment(customer.recent_message_date).locale('es').fromNow()}</Text>
-        <Text style={{fontWeight:'bold', fontSize:16}}>{fullName}</Text>
+        <Title style={{fontWeight:'bold', fontSize:18, color:'#000'}}>{fullName}</Title>
         <View style={{flexDirection:'row', justifyContent:'space-between'}}>
           <View style={{flexDirection:'row'}}>
             {customer.last_whatsapp_message.direction == 'outbound' && customer['handle_message_events?'] == true ?
@@ -204,14 +203,12 @@ export default class DashboardAdmin extends Component {
                 <MaterialCommunityIcons name={iconsName} size={15} color={iconsColor} />
               </View>
             : null}
-            <Text style={{fontSize:12}}><Text style={{color:'#999'}}>Asignado a </Text><Text style={{color: assignedAgent != '' ? '' : '#34aae1'}}>{assignedAgent != '' ? assignedAgent : 'No asignado'}</Text></Text>
+            <Subtitle style={{color:'#000'}}><Text style={{color:'#999', fontSize:12}}>Asignado a </Text><Text style={{color: assignedAgent != '' ? '' : '#34aae1', fontSize:12}}>{assignedAgent != '' ? assignedAgent : 'No asignado'}</Text></Subtitle>
           </View>
           {badgeCount && customer.unread_whatsapp_messages > 0 ?
-            <Badge
-              size={24}
-              text={customer.unread_whatsapp_messages >= 100 ? "+99" : customer.unread_whatsapp_messages}
-              style={{ container: { backgroundColor:'#00A652', top: -2, left: -26 } }}
-            ></Badge>
+            <Badge success >
+              <Text>{customer.unread_whatsapp_messages >= 100 ? "+99" : customer.unread_whatsapp_messages}</Text>
+            </Badge>
           :null}
         </View>
         <View style={{flexDirection:'row', alignItems:'flex-end', justifyContent:'flex-end', marginTop:10}}>
@@ -309,30 +306,34 @@ export default class DashboardAdmin extends Component {
           <Text style={{color:'#514E5A'}}>{globals.email}</Text>
         </View>
         {this.state.spinner ? (
-          <ActivityIndicator size="small" color="#34aae1" />
+          <View style={[styles.enter,{marginVertical:0}]}>
+            <ActivityIndicator size="small" color="#34aae1" />
+          </View>
         ) : (
-          <Button
-            text="Cerrar Sesión"
-            icon="settings"
-            upperCase={false}
-            style={{container:{justifyContent:'flex-start'}}}
-            onPress={() => this.signOut()}
-          />
+          <Button iconLeft dark full transparent onPress={() => this.signOut()}>
+            <Icon name='cog' />
+            <Text>Cerrar Sesión</Text>
+          </Button>
         )}
       </View>
     );
     return (
-      <View style={styles.container}>
-        <Toolbar
-          leftElement={this.state.leftElementIcon}
-          centerElement="Chats"
-          searchable={{
-            autoFocus: true,
-            placeholder: 'Search',
-            onChangeText: (search) => this.actionSearch(search)
-          }}
-          onLeftElementPress={() => this.actionElementLeft('tool')}
-        />
+      <Container>
+        <Header searchBar rounded>
+          <Left>
+            <Button transparent onPress={() => this.actionElementLeft('tool')}>
+              <Icon name={this.state.leftElementIcon} />
+            </Button>
+          </Left>
+          <Body>
+            <Title>Chats</Title>
+          </Body>
+          <Right>
+            <Button transparent>
+              <Icon name='search' />
+            </Button>
+          </Right>
+        </Header>
         <DrawerLayoutAndroid
           ref={_drawer => (this.drawer = _drawer)}
           drawerWidth={250}
@@ -352,7 +353,7 @@ export default class DashboardAdmin extends Component {
             onMomentumScrollBegin={this.onMomentumScrollBegin}
           />
         </DrawerLayoutAndroid>
-      </View>
+      </Container>
     );
   }
 }
