@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Image, TouchableOpacity, Modal, Linking, FlatList, ActivityIndicator, Alert, ImageBackground, TextInput } from 'react-native';
-import { Button, Header, Left, Body, Right, Title, Text, Subtitle, Item, Icon } from 'native-base';
+import { Button, Header, Left, Body, Right, Title, Text, Subtitle, Icon } from 'native-base';
 import { Entypo, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 import Moment from 'moment';
