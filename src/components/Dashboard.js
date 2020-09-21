@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, FlatList, TouchableOpacity, DrawerLayoutAndroid, Alert, AsyncStorage, ActivityIndicator } from 'react-native';
 import { Container, Header, Left, Body, Right, Button, Icon, Title, Badge, Text, Subtitle } from 'native-base';
-import { MaterialCommunityIcons } from '@expo/vector-icons'; 
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Moment from 'moment';
 import 'moment/locale/es';
 
@@ -31,7 +31,24 @@ export default class DashboardAdmin extends Component {
       offset: 0,
       new_message_counter: 0,
       setEditCustomerFullName: '',
-      setEditCustomerId: 0
+      setEditCustomerId: 0,
+      isVisibleModalFilter: false,
+      listTags: [],
+      listAgents: [],
+      filterListCheckAll: true,
+      filterListCheckRead: false,
+      filterListCheckUnread: false,
+      filterListCheckAllAgent: true,
+      filterListCheckNotAssigned: false,
+      filterListCheckAllTags: true,
+      filterListCheckOrderDesc: true,
+      filterListCheckOrderAsc: false,
+      order: 'received_desc',
+      type: 'all',
+      agent: 'all',
+      tag: 'all',
+      selectedTag: undefined,
+      selectedAgent: undefined
     };
     this.signOut = this.signOut.bind(this);
     this.onEndReachedCalledDuringMomentum = true;
@@ -42,12 +59,50 @@ export default class DashboardAdmin extends Component {
   }
 
   componentDidMount() {
-    API.customersList(this.customersListResponse,{},1,0,true);
+    API.customersList(this.customersListResponse,{},1,0,'received_desc','all','all','all',true);
   }
 
   onRefresh = () => {
-    this.setState({isOnRefresh:true, customersList:[]})
-    API.customersList(this.customersListResponse,{},1,0,true);
+    this.setState({
+      isOnRefresh:true,
+      customersList:[],
+      filterListCheckAll: true,
+      filterListCheckRead: false,
+      filterListCheckUnread: false,
+      filterListCheckAllAgent: true,
+      filterListCheckNotAssigned: false,
+      filterListCheckAllTags: true,
+      filterListCheckOrderDesc: true,
+      filterListCheckOrderAsc: false,
+      order: 'received_desc',
+      type: 'all',
+      agent: 'all',
+      tag: 'all',
+      selectedTag: undefined,
+      selectedAgent: undefined})
+    API.customersList(this.customersListResponse,{},1,0,'received_desc','all','all','all',true);
+  }
+
+  setDataFilter = (dataState) => {
+    this.setState({
+      customersList:[],
+      isVisibleModalFilter:false,
+      filterListCheckAll: dataState.filterListCheckAll,
+      filterListCheckRead: dataState.filterListCheckRead,
+      filterListCheckUnread: dataState.filterListCheckUnread,
+      filterListCheckAllAgent: dataState.filterListCheckAllAgent,
+      filterListCheckNotAssigned: dataState.filterListCheckNotAssigned,
+      filterListCheckAllTags: dataState.filterListCheckAllTags,
+      filterListCheckOrderDesc: dataState.filterListCheckOrderDesc,
+      filterListCheckOrderAsc: dataState.filterListCheckOrderAsc,
+      order: dataState.order,
+      type: dataState.type,
+      agent: dataState.agent,
+      tag: dataState.tag,
+      selectedTag: dataState.selectedTag,
+      selectedAgent: dataState.selectedAgent
+    })
+    API.customersList(this.customersListResponse,{},1,0,dataState.order,dataState.type,dataState.agent,dataState.tag,true);
   }
 
   customersListResponse = {
@@ -57,9 +112,9 @@ export default class DashboardAdmin extends Component {
         let newDataCustomers = (response.customers) ? [...this.state.customersList,...response.customers] : this.state.customersList
         let orderCustomers = response.customers.sort((a, b) => a.recent_message_date < b.recent_message_date)
         if(!this.onEndReachedCalledDuringMomentum) {
-          this.setState({customersList: newDataCustomers, isOnRefresh:false})
+          this.setState({customersList:newDataCustomers, isOnRefresh:false, listTags:response.filter_tags, listAgents: response.agent_list})
         } else {
-          this.setState({customersList: orderCustomers, isOnRefresh:false})
+          this.setState({customersList:orderCustomers, isOnRefresh:false, listTags:response.filter_tags, listAgents: response.agent_list})
         }
       } catch (error) {
         console.log('LOGIN RESPONSE ERROR',error)
@@ -79,7 +134,7 @@ export default class DashboardAdmin extends Component {
         page += 1
         this.setState({page:page,offset:offset})
       }
-      API.customersList(this.customersListResponse,{},page,offset,true);
+      API.customersList(this.customersListResponse,{},page,offset,this.state.order,this.state.type,this.state.agent,this.state.tag,true);
     }
   }
 
@@ -319,7 +374,7 @@ export default class DashboardAdmin extends Component {
     );
     return (
       <Container>
-        <Header searchBar rounded>
+        <Header>
           <Left>
             <Button transparent onPress={() => this.actionElementLeft('tool')}>
               <Icon name={this.state.leftElementIcon} />
@@ -329,8 +384,8 @@ export default class DashboardAdmin extends Component {
             <Title>Chats</Title>
           </Body>
           <Right>
-            <Button transparent>
-              <Icon name='search' />
+            <Button transparent onPress={() => this.props.navigation.navigate('Filter',{setDataFilter:this.setDataFilter, listTags:this.state.listTags, listAgents:this.state.listAgents, dataState:this.state})} >
+              <Icon name='filter' type='MaterialCommunityIcons' />
             </Button>
           </Right>
         </Header>

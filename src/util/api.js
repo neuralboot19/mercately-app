@@ -36,8 +36,8 @@ export const API = {
   customerUpdate: (onResponse, data, id, isHeaderRequired) => {
     request(onResponse, data, 'PUT', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMER + id, buildHeader());
   },
-  customersList: (onResponse, {}, page, offset, isHeaderRequired) => {
-    request(onResponse, {}, 'GET', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMERSLIST + "?page=" + page + "&offset=" + offset + "&searchString=&order=received_desc&type=all&agent=all&tag=all", buildHeader());
+  customersList: (onResponse, {}, page, offset, order, type, agent, tag, isHeaderRequired) => {
+    request(onResponse, {}, 'GET', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMERSLIST + "?page=" + page + "&offset=" + offset + "&searchString=&order=" + order + "&type=" + type + "&agent=" + agent + "&tag=" + tag, buildHeader());
   },
   customersKarixWhatsappMessages: (onResponse, {}, id, page, isHeaderRequired) => {
     request(onResponse, {}, 'GET', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMERSLIST + "/" + id + "/messages?page=" + page, buildHeader());

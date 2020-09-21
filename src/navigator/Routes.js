@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Login from '../components/Login';
 import Dashboard from '../components/Dashboard';
 import Chat from '../components/Chat';
+import Filter from '../components/Filter';
 
 const Stack = createStackNavigator();
 
@@ -18,6 +19,7 @@ export default class Navigator extends React.Component {
         <Stack.Screen name="Login" options={{ headerShown: false }} component={Login} />
         <Stack.Screen name="Dashboard" options={{ headerShown: false }} component={Dashboard} />
         <Stack.Screen name="Chat" options={{ headerShown: false }} component={Chat} />
+        <Stack.Screen name="Filter" options={{ headerShown: false }} component={Filter} />
       </Stack.Navigator>
     );
   }
