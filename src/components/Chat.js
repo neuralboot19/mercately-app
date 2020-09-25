@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, Image, TouchableOpacity, Modal, Linking, FlatList, ActivityIndicator, Alert, ImageBackground, TextInput } from 'react-native';
-import { Button, Header, Left, Body, Right, Title, Text, Subtitle, Icon } from 'native-base';
+import { View, Image, TouchableOpacity, Modal, Linking, FlatList, ActivityIndicator, Alert, ImageBackground, Platform, LayoutAnimation } from 'react-native';
+import { Container, Content, Button, Header, Left, Body, Right, Title, Text, Subtitle, Icon, Item, Input, Card, CardItem, Spinner } from 'native-base';
 import { Entypo, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 import Moment from 'moment';
@@ -10,8 +10,12 @@ import 'moment/locale/es';
 import EditCustomer from './EditCustomer';
 import TemplatesCustomer from './Templates';
 
-// Loader module Audio and Video
+// Loader modules Expo
 import { Audio, Video } from 'expo-av';
+import * as Permissions from 'expo-permissions';
+
+// Loade module multimedia
+import ImagePicker from 'react-native-image-crop-picker';
 
 // Socket io client
 import io from 'socket.io-client';
@@ -26,7 +30,6 @@ import { API } from '../util/api';
 const styles = require('../../AppStyles');
 
 export default class Chat extends Component {
-  
   constructor(props) {
     super(props);
     this.state = {
@@ -45,7 +48,17 @@ export default class Chat extends Component {
       whatsappOptIn: this.props.route.params.data.whatsapp_opt_in,
       gupshupIntegrated: globals.retailer_integration,
       fullName: !this.props.route.params.data.fullName ? this.props.route.params.data.phone : this.props.route.params.data.fullName,
-      assignedAgent: !this.props.route.params.data.assigned_agent ? 'No asignado' : this.props.route.params.data.assigned_agent
+      assignedAgent: !this.props.route.params.data.assigned_agent ? 'No asignado' : this.props.route.params.data.assigned_agent,
+      loadedImagesA:{},
+      img1: "",
+      img2: "",
+      img3: "",
+      img4: "",
+      img5: "",
+      visibleButtonSendSelectImg:false,
+      displaySquare: false,
+      loadImageCamera: false,
+      sendButtonImgCamera: false
     };
     this.socket = io(globals.url_socket_io, {jsonp: true});
     this.socket.on('connect', () => {this.socket.emit('create_room', globals.id)});
@@ -206,7 +219,7 @@ export default class Chat extends Component {
     success: (response) => {
       try {
         if (!this.state.messageText == ""){
-          this.textMenssage.clear()
+          this.setState({messageText:""})
         }
         this.setState({spinner:false,buttonSendDisabled:true})
         console.log('SEND MESSAGE RESPONSE responseeeeeeeeee')
@@ -255,7 +268,7 @@ export default class Chat extends Component {
   whatsAppMessageAsReadResponse= {
     success: (response) => {
       try {
-        console.log('RESPONSE RESPONSE READ',response)
+        API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,{},this.state.customerId,1,true);
       } catch (error) {
         console.log('RESPONSE ERROR READ',error)
       }
@@ -315,13 +328,15 @@ export default class Chat extends Component {
   }
 
   inputMessage = (messageText) => {
-    let validated = this.state.buttonSendDisabled
+    let buttonSendDisabledValue = this.state.buttonSendDisabled
+    let displaySquareValue = this.state.displaySquare
     if (messageText.length == 0) {
-      validated = true
+      buttonSendDisabledValue = true
     } else {
-      validated = false
+      buttonSendDisabledValue = false
+      displaySquareValue = false
     }
-    this.setState({messageText:messageText, buttonSendDisabled:validated})
+    this.setState({messageText:messageText, buttonSendDisabled:buttonSendDisabledValue, displaySquare:displaySquareValue})
   }
 
   openTemplate = () => {
@@ -338,7 +353,6 @@ export default class Chat extends Component {
     success: (response) => {
       try {
         this.setState({isVisibleModalTemplatesCustomer:true})
-        console.log('RESPONSE RESPONSE READ',response)
       } catch (error) {
         console.log('RESPONSE ERROR READ',error)
       }
@@ -352,6 +366,159 @@ export default class Chat extends Component {
     const {setDataDashboard} = this.props.route.params
     setDataDashboard(data, this.state.customerId)
     this.setState({fullName:data})
+  }
+
+  openCamera = async () => {
+    if (Platform.OS !== 'web') {
+      const { status } = await Permissions.askAsync(Permissions.CAMERA);
+      if (status !== 'granted') {
+        this.getCameraPermissionAsync()
+      } else {
+        this.getCameraPermissionAsync()
+      }
+    }
+  }
+
+  getCameraPermissionAsync = async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    if (status !== 'granted') {
+      alert('Lo sentimos, necesitamos permisos de cámara para que puedas enviar multimedias.');
+    } else {
+      ImagePicker.openCamera({
+        width: 300,
+        height: 400,
+      }).then(image => {
+        this.setState({loadedImagesA:image, urlImageZoom:image.path, visibleButtonSendSelectImg:true, isVisibleModal:true})
+      });
+    }
+  }
+
+  openPicker = async () => {
+    if (Platform.OS !== 'web') {
+      const { status } = await Permissions.askAsync(Permissions.CAMERA);
+      if (status !== 'granted') {
+        this.getPickerPermissionAsync()
+      } else {
+        this.getPickerPermissionAsync()
+      }
+    }
+  }
+
+  getPickerPermissionAsync = async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    if (status !== 'granted') {
+      alert('Lo sentimos, necesitamos permisos multimedias para enviar imagenes.');
+    } else {
+      ImagePicker.openPicker({
+        width: 300,
+        height: 400,
+        multiple: true,
+        maxFiles: 5
+      }).then(image => {
+        let img01 = this.state.img1
+        let img02 = this.state.img2
+        let img03 = this.state.img3
+        let img04 = this.state.img4
+        let img05 = this.state.img5
+        image.map(img => {
+          switch (image.indexOf(img)) {
+            case 0:
+              img01 = img.path
+              break;
+            case 1:
+              img02 = img.path
+              break;
+            case 2:
+              img03 = img.path
+              break;
+            case 3:
+              img04 = img.path
+              break;
+            case 4:
+              img05 = img.path
+              break;
+            default:
+              break;
+          }
+        })
+        this.setState({loadedImagesA:image, img1:img01, img2:img02, img3:img03, img4:img04, img5:img05, visibleButtonSendSelectImg:true, isVisibleModal:true})
+      });
+    }
+  }
+
+  sendSelectImg = () => {
+    const {loadedImagesA} = this.state
+    this.setState({loadImageCamera:true, sendButtonImgCamera:true})
+    if (loadedImagesA.length > 0){
+      loadedImagesA.map(d => {
+        this.uploadImgCloudinary(d.path, d.mime)
+      })
+    } else {
+      this.uploadImgCloudinary(this.state.urlImageZoom, this.state.loadedImagesA.mime)
+    }
+  }
+  
+  uploadImgCloudinary = async (url, type) => {
+    let CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/' + globals.cloudinary_cloud_name + '/image/upload';
+    const source = {
+      uri: url,
+      type: type,
+      name: 'App mobile imagen'
+    }
+    const data = new FormData()
+    data.append('file', source)
+    data.append('upload_preset', 'pkcxkgds')
+    data.append("cloud_name", "pkcxkgds")
+    fetch(CLOUDINARY_URL, {
+      method: 'POST',
+      body: data
+    }).then(res => res.json()).then(
+      data => {
+        this.setState({loadImageCamera:false, sendButtonImgCamera:false, displaySquare:false})
+        let endData = {
+          "url": data.secure_url,
+          "template": false,
+          "id": this.state.customerId
+        }
+        API.sendWhatsAppBulkFiles(this.sendWhatsAppBulkFilesResponse,endData,this.state.customerId,true);
+      }).catch(err => {
+        alert('An Error Occured While Uploading')
+      }
+    )
+  }
+
+  sendWhatsAppBulkFilesResponse = {
+    success: (response) => {
+      try {
+        ImagePicker.clean().then(() => {
+          this.setState({img1:'', img2:'', img3:'', img4:'', img5:'', urlImageZoom:'', visibleButtonSendSelectImg:false, isVisibleModal:false})
+        }).catch(e => {
+          alert(e);
+        });
+        API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,{},this.state.customerId,1,true);
+      } catch (error) {
+        console.log('LOGIN RESPONSE ERROR ===>>>',error)
+      }
+    },
+    error: (err) => {
+      console.log('LOGIN RESPONSE ERR ===>>>',err)
+    }
+  }
+
+  handleTap = () => {
+    const { displaySquare } = this.state
+    LayoutAnimation.configureNext({
+      duration: 800,
+      create: {
+        type: LayoutAnimation.Types.linear,
+        property: LayoutAnimation.Properties.scaleXY
+      },
+      delete: {
+        type: LayoutAnimation.Types.linear,
+        property: LayoutAnimation.Properties.opacity
+      }
+    })
+    this.setState({displaySquare:!displaySquare})
   }
 
   render() {
@@ -384,6 +551,22 @@ export default class Chat extends Component {
             />
           </View>
         </ImageBackground>
+        {this.state.displaySquare ?
+          <View style={{marginHorizontal:10, position:'absolute', width:'95%', bottom:65}} >
+            <Card>
+              <CardItem>
+                <Left />
+                <Body style={{alignItems:'center'}}>
+                  <Button info rounded style={{marginHorizontal:'22%'}} onPress={() => this.openPicker()}>
+                    <Icon type='FontAwesome' name='image' style={{fontSize:14}} />
+                  </Button>
+                  <Text note>Galería</Text>
+                </Body>
+                <Right />
+              </CardItem>
+            </Card>
+          </View>
+        : null}
         <ImageBackground source={require('../../assets/background_chat.png')} style={{}}>
           {!this.state.canWrite ?
             <Button full style={styles.inputMessageButton} onPress={this.openTemplate}>
@@ -391,21 +574,23 @@ export default class Chat extends Component {
             </Button>
           :
             <View style={styles.chatFooter}>
-              <TextInput
-                ref={ref => (this.textMenssage = ref)}
-                style={styles.inputMessage}
-                placeholder='Escribe un mensaje aqui'
-                onChangeText={messageText => this.inputMessage(messageText)}
-                value={this.state.messageText}
-                keyboardType="default"
-                multiline
-              />
+              <Item rounded style={styles.inputMessage}>
+                <Input
+                  placeholder='Escribe un mensaje aquí'
+                  onChangeText={messageText => this.inputMessage(messageText)}
+                  value={this.state.messageText}
+                  keyboardType="default"
+                  multiline
+                />
+                <Icon name='link' type='FontAwesome' style={{color:'#999'}} onPress={() => this.handleTap()} />
+                <Icon name='camera' style={{color:'#999'}} onPress={() => this.openCamera()} />
+              </Item>
               {this.state.spinner == true ? (
-                <View style={{marginHorizontal:10}}>
+                <View style={{marginVertical:23, marginHorizontal:6, paddingHorizontal:10, marginRight:8}}>
                   <ActivityIndicator size="small" color="black" />
                 </View>
               ):(
-                <Button iconLeft info full rounded style={{paddingHorizontal:10, marginRight:10, marginVertical:5}} disabled={this.state.buttonSendDisabled} onPress={this.onPressSendMessage}>
+                <Button iconLeft info full rounded style={{paddingHorizontal:10, marginRight:10, marginVertical:10}} disabled={this.state.buttonSendDisabled} onPress={this.onPressSendMessage}>
                   <FontAwesome name="send" size={24} color="white" />
                 </Button>
               )}
@@ -414,8 +599,13 @@ export default class Chat extends Component {
         </ImageBackground>
         <Modal visible={this.state.isVisibleModal} animated>
           <Header>
+            <Body>
+              {this.state.visibleButtonSendSelectImg ?
+                <Title>Máximo 5 imágenes</Title>
+              : null}
+            </Body>
             <Right>
-              <Button transparent onPress={() => this.setState({isVisibleModal:false})}>
+              <Button transparent onPress={() => this.setState({isVisibleModal:false, visibleButtonSendSelectImg:false, img1:'', img2:'', img3:'', img4:'', img5:'', urlImageZoom:''})}>
                 <Icon name='close' />
               </Button>
             </Right>
@@ -428,8 +618,46 @@ export default class Chat extends Component {
             bindToBorders={true}
             captureEvent={true}
           >
-            <Image style={{ flex: 1, width: null, height: '100%' }} source={{uri: this.state.urlImageZoom}} resizeMode="contain" />
+            {this.state.visibleButtonSendSelectImg && this.state.urlImageZoom == "" ?
+              <Container>
+                <Content>
+                  <Card transparent>
+                    <CardItem>
+                      <Left>
+                        <Image style={{flex:1, width:160, height:160}} resizeMode="contain" source={{uri:this.state.img1}} />
+                      </Left>
+                      <Right>
+                        <Image style={{flex:1, width:160, height:160}} resizeMode="contain" source={{uri:this.state.img2}} />
+                      </Right>
+                    </CardItem>
+                    <CardItem>
+                      <Left>
+                        <Image style={{flex:1, width:160, height:160}} resizeMode="contain" source={{uri:this.state.img3}} />
+                      </Left>
+                      <Right>
+                        <Image style={{flex:1, width:160, height:160}} resizeMode="contain" source={{uri:this.state.img4}} />
+                      </Right>
+                    </CardItem>
+                    <CardItem>
+                      <Left>
+                        <Image style={{flex:1, width:160, height:160}} resizeMode="contain" source={{uri:this.state.img5}} />
+                      </Left>
+                    </CardItem>
+                  </Card>
+                </Content>
+              </Container>
+            :
+            <View style={{flex:1}}>
+              <Image style={{width:null, height:'80%'}} resizeMode="contain" source={{uri:this.state.urlImageZoom}} />
+              {this.state.loadImageCamera ?
+                <Spinner color='#34aae1' />
+              :null}
+            </View>
+            }
           </ReactNativeZoomableView>
+          {this.state.visibleButtonSendSelectImg ?
+            <Button full style={[styles.enter,{marginHorizontal:10}]}  onPress={() => this.sendSelectImg()} disabled={this.state.sendButtonImgCamera} ><Text>Enviar</Text></Button>
+          : null}
         </Modal>
         <Modal visible={this.state.isVisibleModalEditCustomer} animated>
           <Header>
