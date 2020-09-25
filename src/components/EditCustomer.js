@@ -108,13 +108,9 @@ export default class EditCustomer extends React.Component {
   }
 
   validateFields = () => {
-    if (this.validateEmail(this.state.email) == false) {
-      if (this.state.email == "") {
-        return true
-      } else {
-        alert('El correo ingresado no es válido')
-        return false;
-      }
+    if (this.state.email && !this.validateEmail(this.state.email)) {
+      alert('El correo ingresado no es válido')
+      return false;
     }
     return true;
   }
@@ -302,12 +298,14 @@ export default class EditCustomer extends React.Component {
             returnKeyType={"next"}
             onSubmitEditing={() => this.setFocus("emailInput")}
           />
+          <Text style={{marginTop: 20}}>Teléfono</Text>
+          <Text style={{marginTop: 20}}>{this.state.phone}</Text>
           <Text style={{marginTop: 20}}>Email</Text>
           <TextInput
             ref={ref => (this.emailInput = ref)}
             style={styles.input}
             placeholder="Ingrese email"
-            onChangeText={email => this.setState({ email })}
+            onChangeText={email => this.setState({ email: email.replace(/\s/g, '')  })}
             value={this.state.email}
             keyboardType="email-address"
             autoCapitalize="none"
