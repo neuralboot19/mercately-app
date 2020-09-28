@@ -106,14 +106,14 @@ module.exports = StyleSheet.create({
   },
   inputMessage: {
     flex:1,
-    backgroundColor: "#FFF",
-    borderRadius:22,
-    borderColor: "#cecece",
-    marginHorizontal:10,
+    backgroundColor: '#FFF',
+    borderColor: '#FFF',
+    marginHorizontal:5,
+    marginLeft:10,
     marginVertical:5,
     color:"#514E5A",
     fontSize:16,
-    paddingHorizontal:20
+    paddingHorizontal:5
   },
   inputMessageButton: {
     marginHorizontal:10,
