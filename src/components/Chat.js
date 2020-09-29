@@ -14,6 +14,9 @@ import TemplatesCustomer from './Templates';
 import { Audio, Video } from 'expo-av';
 import * as Permissions from 'expo-permissions';
 
+// Modules Record Audio
+import AudioRecorderPlayer, { AVEncoderAudioQualityIOSType, AVEncodingOption, AudioEncoderAndroidType, AudioSet, AudioSourceAndroidType } from 'react-native-audio-recorder-player';
+
 // Loade module multimedia
 import ImagePicker from 'react-native-image-crop-picker';
 
@@ -28,6 +31,9 @@ import { API } from '../util/api';
 
 // Style
 const styles = require('../../AppStyles');
+
+// Write in storage
+const RNFS = require('react-native-fs');
 
 export default class Chat extends Component {
   constructor(props) {
@@ -58,7 +64,11 @@ export default class Chat extends Component {
       visibleButtonSendSelectImg:false,
       displaySquare: false,
       loadImageCamera: false,
-      sendButtonImgCamera: false
+      sendButtonImgCamera: false,
+      isLoggingIn: false,
+      recordSecs: 0,
+      recordTime: '00:00:00',
+      recordStart: false,
     };
     this.socket = io(globals.url_socket_io, {jsonp: true});
     this.socket.on('connect', () => {this.socket.emit('create_room', globals.id)});
@@ -69,6 +79,8 @@ export default class Chat extends Component {
       this.props.navigation.navigate('Dashboard')
     });
     this.opted_in = false;
+    this.audioRecorderPlayer = new AudioRecorderPlayer();
+    this.audioRecorderPlayer.setSubscriptionDuration(0.3);
   }
 
   componentDidMount() {
@@ -382,7 +394,7 @@ export default class Chat extends Component {
   getCameraPermissionAsync = async () => {
     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (status !== 'granted') {
-      alert('Lo sentimos, necesitamos permisos de cámara para que puedas enviar multimedias.');
+      alert('Lo sentimos, necesitamos permisos de Cámara para que puedas enviar multimedias.');
     } else {
       ImagePicker.openCamera({
         width: 300,
@@ -407,7 +419,7 @@ export default class Chat extends Component {
   getPickerPermissionAsync = async () => {
     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (status !== 'granted') {
-      alert('Lo sentimos, necesitamos permisos multimedias para enviar imagenes.');
+      alert('Lo sentimos, necesitamos permisos Multimedias para enviar imagenes.');
     } else {
       ImagePicker.openPicker({
         width: 300,
@@ -467,8 +479,7 @@ export default class Chat extends Component {
     }
     const data = new FormData()
     data.append('file', source)
-    data.append('upload_preset', 'pkcxkgds')
-    data.append("cloud_name", "pkcxkgds")
+    data.append('upload_preset', 'xowy0xn8')
     fetch(CLOUDINARY_URL, {
       method: 'POST',
       body: data
@@ -519,6 +530,101 @@ export default class Chat extends Component {
       }
     })
     this.setState({displaySquare:!displaySquare})
+  }
+
+  onInitRecord = async () => {
+    if (Platform.OS !== 'web') {
+      try {
+        const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+        if (status !== 'granted') {
+          alert('Lo sentimos, necesitamos permisos de Almacenamiento para escribir archivos.');
+        } else {
+          const { status } = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
+          if (status !== 'granted') {
+            alert('Lo sentimos, necesitamos permisos de Micrófono para enviar audio.');
+          } else {
+            const androidPath = RNFS.DocumentDirectoryPath + '/sound_mercately.mp3'
+            console.log('androidPath', androidPath)
+            const path = Platform.select({
+              ios: 'sound_mercately.m4a',
+              android: androidPath, // should give extra dir name in android. Won't grant permission to the first level of dir.
+            })
+            const audioSet = {
+              AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
+              AudioSourceAndroid: AudioSourceAndroidType.MIC,
+              AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
+              AVNumberOfChannelsKeyIOS: 2,
+              AVFormatIDKeyIOS: AVEncodingOption.aac,
+            }
+            const meteringEnabled = false
+            const uri = await this.audioRecorderPlayer.startRecorder(path, meteringEnabled, audioSet)
+            this.audioRecorderPlayer.addRecordBackListener((e) => {
+              this.setState({
+                recordSecs: e.current_position,
+                recordTime: this.audioRecorderPlayer.mmssss(
+                  Math.floor(e.current_position),
+                ),
+                recordStart: true
+              });
+            });
+          }
+        }
+      } catch (err) {
+        console.warn(err);
+        return;
+      }
+    }
+  }
+
+  cancelAudio = () => {
+    this.audioRecorderPlayer.removeRecordBackListener()
+    this.audioRecorderPlayer.stopPlayer()
+    this.audioRecorderPlayer.removePlayBackListener()
+    this.setState({
+      recordSecs:0,
+      recordStart:false
+    })
+  }
+
+  sendSelectAudio = async () => {
+    const result = await this.audioRecorderPlayer.stopRecorder()
+    this.audioRecorderPlayer.removeRecordBackListener()
+    const base64A = await RNFS.readFile(result, 'base64');
+    let base64Aud = `data:audio/mpeg;base64,${base64A}`;
+    let CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/' + globals.cloudinary_cloud_name + '/upload';
+    let fd = new FormData();
+        fd.append('file', `${base64Aud}`);
+        fd.append('upload_preset', 'xowy0xn8');
+        fd.append('resource_type', 'audio')
+    fetch(CLOUDINARY_URL, {
+      method: 'POST',
+      body: fd
+    }).then(res => res.json()).then(
+      data => {
+        this.setState({recordSecs:0, recordTime:'00:00', recordStart:false})
+        let endData = {
+          "url": data.secure_url,
+          "template": false,
+          "type": 'audio'
+        }
+        API.sendWhatsAppFiles(this.sendWhatsAppFilesResponse,endData,this.state.customerId,true);
+      }).catch(err => {
+        alert('An Error Occured While Uploading')
+      }
+    )
+  }
+
+  sendWhatsAppFilesResponse = {
+    success: (response) => {
+      try {
+        API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,{},this.state.customerId,1,true);
+      } catch (error) {
+        console.log('LOGIN RESPONSE ERROR',error)
+      }
+    },
+    error: (err) => {
+      Alert.alert(globals.APP_NAME,err.message,[{text:'OK'}]);
+    }
   }
 
   render() {
@@ -574,25 +680,40 @@ export default class Chat extends Component {
             </Button>
           :
             <View style={styles.chatFooter}>
-              <Item rounded style={styles.inputMessage}>
-                <Input
-                  placeholder='Escribe un mensaje aquí'
-                  onChangeText={messageText => this.inputMessage(messageText)}
-                  value={this.state.messageText}
-                  keyboardType="default"
-                  multiline
-                />
-                <Icon name='link' type='FontAwesome' style={{color:'#999'}} onPress={() => this.handleTap()} />
-                <Icon name='camera' style={{color:'#999'}} onPress={() => this.openCamera()} />
-              </Item>
+              {this.state.recordStart ?
+                <Item rounded style={[{padding:10, paddingVertical:12},styles.inputMessage]}>
+                  <Icon name='microphone' type='FontAwesome' style={{color:'red'}} />
+                  <Text>{this.state.recordTime}</Text>
+                  <Right>
+                    <Text style={{marginRight:10, color:'red'}} onPress={this.cancelAudio}>Cancelar</Text>
+                  </Right>
+                </Item>
+              :
+                <Item rounded style={styles.inputMessage}>
+                  <Input
+                    placeholder='Escribe un mensaje aquí'
+                    onChangeText={messageText => this.inputMessage(messageText)}
+                    value={this.state.messageText}
+                    keyboardType="default"
+                    multiline
+                  />
+                  <Icon name='link' type='FontAwesome' style={{color:'#999'}} onPress={() => this.handleTap()} />
+                  <Icon name='camera' style={{color:'#999'}} onPress={() => this.openCamera()} />
+                </Item>
+              }
               {this.state.spinner == true ? (
                 <View style={{marginVertical:23, marginHorizontal:6, paddingHorizontal:10, marginRight:8}}>
                   <ActivityIndicator size="small" color="black" />
                 </View>
               ):(
-                <Button iconLeft info full rounded style={{paddingHorizontal:10, marginRight:10, marginVertical:10}} disabled={this.state.buttonSendDisabled} onPress={this.onPressSendMessage}>
-                  <FontAwesome name="send" size={24} color="white" />
-                </Button>
+                this.state.buttonSendDisabled ? 
+                  <Button iconLeft info full rounded style={this.state.recordStart ? {paddingHorizontal:10.7, marginRight:10, marginVertical:10} : {paddingHorizontal:15, marginRight:10, marginVertical:10}} onPress={() => this.state.recordStart ? this.sendSelectAudio() : this.onInitRecord() } >
+                    <FontAwesome name={this.state.recordStart ? "send" : "microphone"} size={24} color="white" />
+                  </Button>
+                :
+                  <Button iconLeft info full rounded style={{paddingHorizontal:10.7, marginRight:10, marginVertical:10}} onPress={this.onPressSendMessage} >
+                    <FontAwesome name="send" size={24} color="white" />
+                  </Button>
               )}
             </View>
           }
