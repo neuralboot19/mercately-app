@@ -8,7 +8,7 @@ export const buildHeader = () => {
       'Content-Type': 'application/json'
     }
     Object.assign(header);
-    return header; 
+    return header;
   }else{
     let dataHeader = globals.header
     let header = {
@@ -68,6 +68,9 @@ export const API = {
   },
   whatsAppTemplates: (onResponse, {}, page, isHeaderRequired) => {
     request(onResponse, {}, 'GET', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.WHATSAPPTEMPLATES + "?page=" + page, buildHeader());
+  },
+  whatsAppQuickReplies: (onResponse) => {
+    request(onResponse, {}, 'GET', 'JSON', true, `${APILIST.BASE_URL}${APILIST.WHATSAPP_QUICK_REPLIES}?page=1`, buildHeader());
   }
 }
 

@@ -86,8 +86,13 @@ module.exports = StyleSheet.create({
     paddingBottom:3
   },
   chatText: {
-    fontSize:14,
-    marginRight:10
+    fontSize: 14,
+    marginRight: 10
+  },
+  chatCaption: {
+    fontSize: 14,
+    marginRight: 10,
+    marginTop: 8
   },
   footerMessage: {
     flexDirection:'row',
@@ -113,7 +118,8 @@ module.exports = StyleSheet.create({
     marginVertical:5,
     color:"#514E5A",
     fontSize:16,
-    paddingHorizontal:5
+    paddingHorizontal:5,
+    flexDirection: 'column'
   },
   inputMessageButton: {
     marginHorizontal:10,
@@ -121,6 +127,21 @@ module.exports = StyleSheet.create({
     backgroundColor:"#34aae1",
     borderRadius:5,
     color:"#514E5A"
+  },
+  optionsPanelContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    flexDirection: 'row'
+  },
+  optionsPanelItemContainer: {
+    flex: 0.5,
+    flexDirection: 'column'
+  },
+  optionPanelItemButton: {
+    alignSelf: 'center'
+  },
+  optionPanelItemLabel: {
+    alignSelf: 'center'
   },
   /////////////////////////////// Style Chat End ///////////////////////////////
 
@@ -136,6 +157,56 @@ module.exports = StyleSheet.create({
     marginTop: 10,
     backgroundColor:'#ececec',
     borderRadius:3,
-  }
+  },
   ////////////////////////// Style Edit CUstomer End  //////////////////////////
+
+  // ////////////////////////// Style Quick Replies  ////////////////////////////
+  spinner: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  noRepliesMessage: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 16
+  },
+  itemContainer: {
+    paddingTop: 0,
+    paddingBottom: 0
+  },
+  itemCard: {
+    flex: 1
+  },
+  itemResponseLabel: {
+    fontWeight: 'bold'
+  },
+  itemImage: {
+    height: 200,
+    width: 'auto',
+    flex: 1
+  },
+  headerTitle: {
+    flex: 5
+  },
+  headerCloseButton: {
+    flex: 1
+  },
+  previewImage: {
+    width: 0,
+    aspectRatio: 1,
+    height: 150,
+    borderRadius: 10
+  },
+  closeButton: {
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    justifyContent: 'center',
+    width: 40,
+    height: 40,
+    position: 'absolute'
+  }
+  // ////////////////////////// Style Quick Replies End  ////////////////////////////
 });

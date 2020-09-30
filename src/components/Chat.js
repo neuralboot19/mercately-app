@@ -28,6 +28,8 @@ import * as globals from '../util/globals';
 
 // Api
 import { API } from '../util/api';
+import QuickReplyPickerModal from './QuickReplyPickerModal/QuickReplyPickerModal';
+import QuickReplyImagePreview from './QuickReplyImagePreview/QuickReplyImagePreview';
 
 // Style
 const styles = require('../../AppStyles');
@@ -69,6 +71,9 @@ export default class Chat extends Component {
       recordSecs: 0,
       recordTime: '00:00:00',
       recordStart: false,
+      shouldShowQuickResponsePickerModal: false,
+      quickReplyMediaUrl: null,
+      toolBoxBottomStyle: 65
     };
     this.socket = io(globals.url_socket_io, {jsonp: true});
     this.socket.on('connect', () => {this.socket.emit('create_room', globals.id)});
@@ -109,7 +114,7 @@ export default class Chat extends Component {
       Alert.alert(globals.APP_NAME,err.message,[{text:'OK'}]);
     }
   }
- 
+
   onPressPlaySound = async (url) => {
     if (this.state.statusPlaySound == "Reproducir") {
       this.setState({statusPlaySound: "Pausar"})
@@ -192,6 +197,7 @@ export default class Chat extends Component {
           {message.content_type == 'media' && message.content_media_type == 'image' && (
             <TouchableOpacity style={{height:200, width:200}} onPress={() => this.onPressImg(message.content_media_url)} >
               <Image source={{uri: message.content_media_url}} style={{flex:1, borderRadius:10}} />
+              {!!message.content_media_caption && <Text style={styles.chatCaption}>{message.content_media_caption}</Text>}
             </TouchableOpacity>
           )}
           {message.content_type == 'text' && (
@@ -218,13 +224,25 @@ export default class Chat extends Component {
     let message = this.state.messageText ? this.state.messageText : data
     let template = data == "" ? false : true
     this.setState({spinner:true, isVisibleModalTemplatesCustomer:false})
-    let endData = {
-      "message": message,
-      "customer_id": this.state.customerId,
-      "template": template,
-      "type": 'text'
+    let endData;
+    if(this.state.quickReplyMediaUrl) {
+      endData = {
+        "template": false,
+        "url": this.state.quickReplyMediaUrl,
+        "type": "file",
+        "caption": this.state.messageText,
+        "id": this.state.customerId
+      }
+      API.sendWhatsAppFiles(this.sendWhatsAppMessageResponse, endData, this.state.customerId, true);
+    } else {
+      endData = {
+        "message": message,
+        "customer_id": this.state.customerId,
+        "template": template,
+        "type": 'text'
+      }
+      API.sendWhatsAppMessage(this.sendWhatsAppMessageResponse, endData, true);
     }
-    API.sendWhatsAppMessage(this.sendWhatsAppMessageResponse,endData,true);
   }
 
   sendWhatsAppMessageResponse = {
@@ -233,8 +251,8 @@ export default class Chat extends Component {
         if (!this.state.messageText == ""){
           this.setState({messageText:""})
         }
-        this.setState({spinner:false,buttonSendDisabled:true})
-        console.log('SEND MESSAGE RESPONSE responseeeeeeeeee')
+        this.setState({spinner:false,buttonSendDisabled:true, quickReplyMediaUrl: null, toolBoxBottomStyle: 65})
+        API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse, {}, this.state.customerId,1,true);
       } catch (error) {
         console.log('SEND MESSAGE RESPONSE ERROR',error)
       }
@@ -242,6 +260,15 @@ export default class Chat extends Component {
     error: (err) => {
       console.log('SEND MESSA RESPONSE ERR',err)
     }
+  }
+
+  setQuickReply = (quickReply) => {
+    this.setState({
+      quickReplyMediaUrl: quickReply.image_url,
+      shouldShowQuickResponsePickerModal: false,
+      displaySquare: false,
+      toolBoxBottomStyle: quickReply.image_url ? 215 : 65
+    }, () => this.inputMessage(quickReply.answer))
   }
 
   getReplyChat = (data) => {
@@ -342,7 +369,7 @@ export default class Chat extends Component {
   inputMessage = (messageText) => {
     let buttonSendDisabledValue = this.state.buttonSendDisabled
     let displaySquareValue = this.state.displaySquare
-    if (messageText.length == 0) {
+    if (messageText.length == 0 && this.state.quickReplyMediaUrl === null) {
       buttonSendDisabledValue = true
     } else {
       buttonSendDisabledValue = false
@@ -416,6 +443,18 @@ export default class Chat extends Component {
     }
   }
 
+  openQuickResponsePicker = () => {
+    this.setState({shouldShowQuickResponsePickerModal: true})
+  }
+
+  removeQuickReplyMedia = () => {
+    this.setState({
+      quickReplyMediaUrl: null,
+      buttonSendDisabled: this.state.messageText.length === 0,
+      toolBoxBottomStyle: 65
+    })
+  }
+
   getPickerPermissionAsync = async () => {
     const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
     if (status !== 'granted') {
@@ -469,7 +508,7 @@ export default class Chat extends Component {
       this.uploadImgCloudinary(this.state.urlImageZoom, this.state.loadedImagesA.mime)
     }
   }
-  
+
   uploadImgCloudinary = async (url, type) => {
     let CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/' + globals.cloudinary_cloud_name + '/image/upload';
     const source = {
@@ -657,22 +696,6 @@ export default class Chat extends Component {
             />
           </View>
         </ImageBackground>
-        {this.state.displaySquare ?
-          <View style={{marginHorizontal:10, position:'absolute', width:'95%', bottom:65}} >
-            <Card>
-              <CardItem>
-                <Left />
-                <Body style={{alignItems:'center'}}>
-                  <Button info rounded style={{marginHorizontal:'22%'}} onPress={() => this.openPicker()}>
-                    <Icon type='FontAwesome' name='image' style={{fontSize:14}} />
-                  </Button>
-                  <Text note>Galería</Text>
-                </Body>
-                <Right />
-              </CardItem>
-            </Card>
-          </View>
-        : null}
         <ImageBackground source={require('../../assets/background_chat.png')} style={{}}>
           {!this.state.canWrite ?
             <Button full style={styles.inputMessageButton} onPress={this.openTemplate}>
@@ -690,15 +713,21 @@ export default class Chat extends Component {
                 </Item>
               :
                 <Item rounded style={styles.inputMessage}>
-                  <Input
-                    placeholder='Escribe un mensaje aquí'
-                    onChangeText={messageText => this.inputMessage(messageText)}
-                    value={this.state.messageText}
-                    keyboardType="default"
-                    multiline
-                  />
-                  <Icon name='link' type='FontAwesome' style={{color:'#999'}} onPress={() => this.handleTap()} />
-                  <Icon name='camera' style={{color:'#999'}} onPress={() => this.openCamera()} />
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                      <Input
+                        placeholder='Escribe un mensaje aquí'
+                        onChangeText={messageText => this.inputMessage(messageText)}
+                        value={this.state.messageText}
+                        keyboardType="default"
+                        multiline
+                      />
+                      <Icon name='bolt' type='FontAwesome5' style={{color:'#999', paddingRight: 0, fontSize: 20}} onPress={() => this.openQuickResponsePicker()}/>
+                      <Icon name='paperclip' type='FontAwesome5' style={{color:'#999', paddingRight: 0, fontSize: 20}} onPress={() => this.handleTap()}/>
+                      <Icon name='camera' type='FontAwesome5' style={{color:'#999', fontSize: 20}} onPress={() => this.openCamera()} />
+                    </View>
+                  {this.state.quickReplyMediaUrl &&
+                    <QuickReplyImagePreview imageUrl={this.state.quickReplyMediaUrl} onPress={() => {this.removeQuickReplyMedia()}}/>
+                  }
                 </Item>
               }
               {this.state.spinner == true ? (
@@ -706,7 +735,7 @@ export default class Chat extends Component {
                   <ActivityIndicator size="small" color="black" />
                 </View>
               ):(
-                this.state.buttonSendDisabled ? 
+                this.state.buttonSendDisabled ?
                   <Button iconLeft info full rounded style={this.state.recordStart ? {paddingHorizontal:10.7, marginRight:10, marginVertical:10} : {paddingHorizontal:15, marginRight:10, marginVertical:10}} onPress={() => this.state.recordStart ? this.sendSelectAudio() : this.onInitRecord() } >
                     <FontAwesome name={this.state.recordStart ? "send" : "microphone"} size={24} color="white" />
                   </Button>
@@ -718,6 +747,29 @@ export default class Chat extends Component {
             </View>
           }
         </ImageBackground>
+        {this.state.displaySquare &&
+          <View style={{marginHorizontal:10, position:'absolute', width:'95%', bottom: this.state.toolBoxBottomStyle}} >
+            <Card>
+              <CardItem>
+                <View style={styles.optionsPanelContainer}>
+                  <View style={styles.optionsPanelItemContainer}>
+                    <Button info rounded style={styles.optionPanelItemButton}
+                            onPress={() => this.openQuickResponsePicker()}>
+                      <Icon type='FontAwesome' name='bolt'/>
+                    </Button>
+                    <Text note style={styles.optionPanelItemLabel}>Respuestas rápidas</Text>
+                  </View>
+                  <View style={styles.optionsPanelItemContainer}>
+                    <Button info rounded style={styles.optionPanelItemButton}
+                            onPress={() => this.openPicker()}>
+                      <Icon type='FontAwesome' name='image' style={{ fontSize: 14 }}/>
+                    </Button>
+                    <Text note style={styles.optionPanelItemLabel}>Galería</Text>
+                  </View>
+                </View>
+              </CardItem>
+            </Card>
+          </View>}
         <Modal visible={this.state.isVisibleModal} animated>
           <Header>
             <Body>
@@ -806,6 +858,10 @@ export default class Chat extends Component {
           </Header>
           <TemplatesCustomer setSendMessageTemplate={this.onPressSendMessage} />
         </Modal>
+        <QuickReplyPickerModal visible={this.state.shouldShowQuickResponsePickerModal}
+                               onClose={() => this.setState({shouldShowQuickResponsePickerModal: false})}
+                               onPress={(quickReply) => this.setQuickReply(quickReply)}
+        />
       </View>
     )
   }
