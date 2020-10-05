@@ -9,4 +9,4 @@ export let last_name = null
 export let email = null
 export let retailer_integration = ''
 export let url_socket_io = 'https://wss.mercately.com/'
-export let cloudinary_cloud_name = 'xowy0xn8'
+export let cloudinary_cloud_name = 'www-mercately-com'
