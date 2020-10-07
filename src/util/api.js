@@ -1,5 +1,6 @@
 import * as APILIST from './api_url';
 import * as globals from './globals';
+import {BASE_URL} from '@env';
 
 export const buildHeader = () => {
   if(globals.header == null) {
@@ -25,52 +26,52 @@ export const buildHeader = () => {
 
 export const API = {
   login: (onResponse, data, isHeaderRequired) => {
-    request(onResponse, data, 'POST', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.LOGIN, buildHeader());
+    request(onResponse, data, 'POST', "JSON", isHeaderRequired, BASE_URL + APILIST.LOGIN, buildHeader());
   },
   signOut: (onResponse, {}, isHeaderRequired) => {
-    request(onResponse, {}, 'DELETE', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.SIGNOUT, buildHeader());
+    request(onResponse, {}, 'DELETE', "JSON", isHeaderRequired, BASE_URL + APILIST.SIGNOUT, buildHeader());
   },
   customer: (onResponse, {}, id, isHeaderRequired) => {
-    request(onResponse, {}, 'GET', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMER + id, buildHeader());
+    request(onResponse, {}, 'GET', "JSON", isHeaderRequired, BASE_URL + APILIST.CUSTOMER + id, buildHeader());
   },
   customerUpdate: (onResponse, data, id, isHeaderRequired) => {
-    request(onResponse, data, 'PUT', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMER + id, buildHeader());
+    request(onResponse, data, 'PUT', "JSON", isHeaderRequired, BASE_URL + APILIST.CUSTOMER + id, buildHeader());
   },
   customersList: (onResponse, {}, page, offset, order, type, agent, tag, isHeaderRequired) => {
-    request(onResponse, {}, 'GET', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMERSLIST + "?page=" + page + "&offset=" + offset + "&searchString=&order=" + order + "&type=" + type + "&agent=" + agent + "&tag=" + tag, buildHeader());
+    request(onResponse, {}, 'GET', "JSON", isHeaderRequired, BASE_URL + APILIST.CUSTOMERSLIST + "?page=" + page + "&offset=" + offset + "&searchString=&order=" + order + "&type=" + type + "&agent=" + agent + "&tag=" + tag, buildHeader());
   },
   customersKarixWhatsappMessages: (onResponse, {}, id, page, isHeaderRequired) => {
-    request(onResponse, {}, 'GET', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMERSLIST + "/" + id + "/messages?page=" + page, buildHeader());
+    request(onResponse, {}, 'GET', "JSON", isHeaderRequired, BASE_URL + APILIST.CUSTOMERSLIST + "/" + id + "/messages?page=" + page, buildHeader());
   },
   customerAddTag: (onResponse, data, id, isHeaderRequired) => {
-    request(onResponse, data, 'POST', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMER + id + "/add_tag", buildHeader());
+    request(onResponse, data, 'POST', "JSON", isHeaderRequired, BASE_URL + APILIST.CUSTOMER + id + "/add_tag", buildHeader());
   },
   customerRemoveTag: (onResponse, data, id, isHeaderRequired) => {
-    request(onResponse, data, 'DELETE', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMER + id + "/remove_customer_tag", buildHeader());
+    request(onResponse, data, 'DELETE', "JSON", isHeaderRequired, BASE_URL + APILIST.CUSTOMER + id + "/remove_customer_tag", buildHeader());
   },
   customerSelectTag: (onResponse, data, id, isHeaderRequired) => {
-    request(onResponse, data, 'POST', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.CUSTOMER + id + "/add_customer_tag", buildHeader());
+    request(onResponse, data, 'POST', "JSON", isHeaderRequired, BASE_URL + APILIST.CUSTOMER + id + "/add_customer_tag", buildHeader());
   },
   sendWhatsAppMessage: (onResponse, data, isHeaderRequired) => {
-    request(onResponse, data, 'POST', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.SENDWHATSAPPMESSAGE, buildHeader());
+    request(onResponse, data, 'POST', "JSON", isHeaderRequired, BASE_URL + APILIST.SENDWHATSAPPMESSAGE, buildHeader());
   },
   sendWhatsAppBulkFiles: (onResponse, data, id, isHeaderRequired) => {
-    request(onResponse, data, 'POST', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.SENDWHATSAPPBULKFILES + "/" + id, buildHeader());
+    request(onResponse, data, 'POST', "JSON", isHeaderRequired, BASE_URL + APILIST.SENDWHATSAPPBULKFILES + "/" + id, buildHeader());
   },
   sendWhatsAppFiles: (onResponse, data, id, isHeaderRequired) => {
-    request(onResponse, data, 'POST', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.KARIXWHATSAPPSENDFILE + "/" + id, buildHeader());
+    request(onResponse, data, 'POST', "JSON", isHeaderRequired, BASE_URL + APILIST.KARIXWHATSAPPSENDFILE + "/" + id, buildHeader());
   },
   whatsAppMessageAsRead: (onResponse, data, id, isHeaderRequired) => {
-    request(onResponse, data, 'PUT', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.WHATSAPPMESSAGEASREAD + "/" + id, buildHeader());
+    request(onResponse, data, 'PUT', "JSON", isHeaderRequired, BASE_URL + APILIST.WHATSAPPMESSAGEASREAD + "/" + id, buildHeader());
   },
   whatsAppAcceptOptIn: (onResponse, {}, id, isHeaderRequired) => {
-    request(onResponse, {}, 'PATCH', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.WHATSAPPACCEPTOPTIN + "/" + id, buildHeader());
+    request(onResponse, {}, 'PATCH', "JSON", isHeaderRequired, BASE_URL + APILIST.WHATSAPPACCEPTOPTIN + "/" + id, buildHeader());
   },
   whatsAppTemplates: (onResponse, {}, page, isHeaderRequired) => {
-    request(onResponse, {}, 'GET', "JSON", isHeaderRequired, APILIST.BASE_URL + APILIST.WHATSAPPTEMPLATES + "?page=" + page, buildHeader());
+    request(onResponse, {}, 'GET', "JSON", isHeaderRequired, BASE_URL + APILIST.WHATSAPPTEMPLATES + "?page=" + page, buildHeader());
   },
   whatsAppQuickReplies: (onResponse) => {
-    request(onResponse, {}, 'GET', 'JSON', true, `${APILIST.BASE_URL}${APILIST.WHATSAPP_QUICK_REPLIES}?page=1`, buildHeader());
+    request(onResponse, {}, 'GET', 'JSON', true, `${BASE_URL}${APILIST.WHATSAPP_QUICK_REPLIES}?page=1`, buildHeader());
   }
 }
 
