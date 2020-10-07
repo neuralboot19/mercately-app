@@ -4,6 +4,7 @@ import { Container, Header, Left, Body, Right, Button, Icon, Title, Badge, Text,
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Moment from 'moment';
 import 'moment/locale/es';
+import {SOCKET_URL} from '@env';
 
 // Socket io client
 import io from 'socket.io-client';
@@ -18,7 +19,7 @@ import { API } from '../util/api';
 const styles = require('../../AppStyles');
 
 export default class DashboardAdmin extends Component {
-  
+
   constructor(props) {
     super(props);
     this.state = {
@@ -52,7 +53,7 @@ export default class DashboardAdmin extends Component {
     };
     this.signOut = this.signOut.bind(this);
     this.onEndReachedCalledDuringMomentum = true;
-    this.socket = io(globals.url_socket_io, {jsonp: true});
+    this.socket = io(SOCKET_URL, {jsonp: true});
     this.socket.on('connect', () => {this.socket.emit('create_room', globals.id)});
     this.getReplyChat = this.getReplyChat.bind(this);
     this.socket.on('customer_chat', this.getReplyChat);
@@ -141,7 +142,7 @@ export default class DashboardAdmin extends Component {
   onMomentumScrollBegin = () =>{
     this.onEndReachedCalledDuringMomentum = false;
   }
-  
+
 
   actionSearch(search) {
     this.drawer.closeDrawer();
@@ -267,7 +268,7 @@ export default class DashboardAdmin extends Component {
           :null}
         </View>
         <View style={{flexDirection:'row', alignItems:'flex-end', justifyContent:'flex-end', marginTop:10}}>
-          {customer.tags.map( t => 
+          {customer.tags.map( t =>
             <Text style={{fontSize:10, backgroundColor:'#d5ecfd',padding:3, paddingHorizontal:6, marginLeft:5, borderRadius:3/2}}>{t.tag}</Text>
           )}
         </View>
@@ -395,7 +396,7 @@ export default class DashboardAdmin extends Component {
           renderNavigationView={() => DrawerContent }
           onDrawerStateChanged={(int) => this.actionElementLeft(int,'drawer')}
         >
-          <FlatList 
+          <FlatList
             data = {this.state.customersList}
             renderItem = {this.renderItem}
             keyExtractor={(item)=>item.id.toString()}

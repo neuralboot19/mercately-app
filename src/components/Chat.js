@@ -5,6 +5,7 @@ import { Entypo, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons'
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 import Moment from 'moment';
 import 'moment/locale/es';
+import {CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET, SOCKET_URL} from '@env';
 
 // Component
 import EditCustomer from './EditCustomer';
@@ -75,7 +76,7 @@ export default class Chat extends Component {
       quickReplyMediaUrl: null,
       toolBoxBottomStyle: 65
     };
-    this.socket = io(globals.url_socket_io, {jsonp: true});
+    this.socket = io(SOCKET_URL, {jsonp: true});
     this.socket.on('connect', () => {this.socket.emit('create_room', globals.id)});
     this.getReplyChat = this.getReplyChat.bind(this);
     this.socket.on('message_chat', this.getReplyChat)
@@ -510,7 +511,7 @@ export default class Chat extends Component {
   }
 
   uploadImgCloudinary = async (url, type) => {
-    let CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/' + globals.cloudinary_cloud_name + '/image/upload';
+    let CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD_NAME + '/image/upload';
     const source = {
       uri: url,
       type: type,
@@ -518,7 +519,7 @@ export default class Chat extends Component {
     }
     const data = new FormData()
     data.append('file', source)
-    data.append('upload_preset', 'xowy0xn8')
+    data.append('upload_preset', CLOUDINARY_UPLOAD_PRESET)
     fetch(CLOUDINARY_URL, {
       method: 'POST',
       body: data
@@ -630,10 +631,10 @@ export default class Chat extends Component {
     this.audioRecorderPlayer.removeRecordBackListener()
     const base64A = await RNFS.readFile(result, 'base64');
     let base64Aud = `data:audio/mpeg;base64,${base64A}`;
-    let CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/' + globals.cloudinary_cloud_name + '/upload';
+    let CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/' + CLOUDINARY_CLOUD_NAME + '/upload';
     let fd = new FormData();
         fd.append('file', `${base64Aud}`);
-        fd.append('upload_preset', 'xowy0xn8');
+        fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
         fd.append('resource_type', 'audio')
     fetch(CLOUDINARY_URL, {
       method: 'POST',

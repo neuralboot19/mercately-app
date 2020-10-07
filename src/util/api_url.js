@@ -1,5 +1,3 @@
-export const BASE_URL = "https://www.mercately.com/";
-
 export const LOGIN = "api/v1/sign_in";
 export const SIGNOUT = "api/v1/log_out";
 export const CUSTOMER = "api/v1/customers/";
