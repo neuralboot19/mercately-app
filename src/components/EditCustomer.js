@@ -5,6 +5,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 // Api
 import { API } from '../util/api';
+import { emoji } from '../util/flag_emoji';
 
 // Style
 const styles = require('../../AppStyles');
@@ -22,6 +23,7 @@ export default class EditCustomer extends React.Component {
       nationalId: null,
       address: null,
       city: "",
+      countryId: '',
       province: "",
       notes: "",
       idType: 0,
@@ -52,6 +54,7 @@ export default class EditCustomer extends React.Component {
           nationalId: response.customer.id_number,
           address: response.customer.address,
           city: response.customer.city,
+          countryId: response.customer.country_id,
           province: response.customer.state,
           notes: response.customer.notes,
           placeholderNationalId: placeholderNationalId,
@@ -299,7 +302,7 @@ export default class EditCustomer extends React.Component {
             onSubmitEditing={() => this.setFocus("emailInput")}
           />
           <Text style={{marginTop: 20}}>Teléfono</Text>
-          <Text style={{marginTop: 20}}>{this.state.phone}</Text>
+          <Text style={{marginTop: 20}}>{emoji(this.state.countryId)} {this.state.phone}</Text>
           <Text style={{marginTop: 20}}>Email</Text>
           <TextInput
             ref={ref => (this.emailInput = ref)}
