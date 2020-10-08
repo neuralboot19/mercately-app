@@ -88,6 +88,8 @@ target 'Mercately' do
   add_flipper_pods!
   pod 'RNAudioRecorderPlayer', :path => '../node_modules/react-native-audio-recorder-player'
 
+  pod 'react-native-maps', :path => '../node_modules/react-native-maps'
+
   post_install do |installer|
     flipper_post_install(installer)
   end

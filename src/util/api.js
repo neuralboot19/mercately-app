@@ -61,6 +61,9 @@ export const API = {
   sendWhatsAppFiles: (onResponse, data, id, isHeaderRequired) => {
     request(onResponse, data, 'POST', "JSON", isHeaderRequired, BASE_URL + APILIST.KARIXWHATSAPPSENDFILE + "/" + id, buildHeader());
   },
+  sendWhatsAppLocation: (onResponse, data, isHeaderRequired) => {
+    request(onResponse, data, 'POST', "JSON", isHeaderRequired, BASE_URL + APILIST.SENDWHATSAPPMESSAGE, buildHeader());
+  },
   whatsAppMessageAsRead: (onResponse, data, id, isHeaderRequired) => {
     request(onResponse, data, 'PUT', "JSON", isHeaderRequired, BASE_URL + APILIST.WHATSAPPMESSAGEASREAD + "/" + id, buildHeader());
   },
