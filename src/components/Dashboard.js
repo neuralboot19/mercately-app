@@ -222,8 +222,8 @@ export default class DashboardAdmin extends Component {
     }
   }
 
-  onPressChat = (fullName, phone, id, whatsappOptIn, recentMessageDate, assignedAgent) => {
-    let data = {id:id, fullName:fullName, phone:phone, whatsapp_opt_in:whatsappOptIn, recent_inbound_message_date:recentMessageDate, assigned_agent:assignedAgent}
+  onPressChat = (fullName, phone, id, whatsappOptIn, recentMessageDate, assignedAgent, assignedAgentId) => {
+    let data = {id:id, fullName:fullName, phone:phone, whatsapp_opt_in:whatsappOptIn, recent_inbound_message_date:recentMessageDate, assigned_agent:assignedAgent, agentsList: this.state.listAgents, assignedAgentId: assignedAgentId}
     this.props.navigation.navigate('Chat',{data, setDataDashboard:this.setDataDashboard})
   }
 
@@ -246,7 +246,7 @@ export default class DashboardAdmin extends Component {
     let iconsName = customer.last_whatsapp_message.status == 'sent' ? 'check' : (customer.last_whatsapp_message.status == 'delivered' ? 'check-all' : ( customer.last_whatsapp_message.status == 'read' ? 'check-all' : 'sync'))
     let iconsColor = customer.last_whatsapp_message.status == 'sent' ? 'black' : (customer.last_whatsapp_message.status == 'delivered' ? 'black' : ( customer.last_whatsapp_message.status == 'read' ? '#34aae1' : 'black'))
     return(
-      <TouchableOpacity style={styles.cardChatSelect} key={customer.id} onPress={() => this.onPressChat(fullName, customer.phone, customer.id, customer.whatsapp_opt_in, customer.recent_inbound_message_date, assignedAgent)}>
+      <TouchableOpacity style={styles.cardChatSelect} key={customer.id} onPress={() => this.onPressChat(fullName, customer.phone, customer.id, customer.whatsapp_opt_in, customer.recent_inbound_message_date, assignedAgent, customer.assigned_agent.id)}>
         <Text style={{fontSize:10, color:colorMoment, textAlign:'right'}}>{Moment(customer.recent_message_date).locale('es').fromNow()}</Text>
         <Title style={{fontWeight:'bold', fontSize:18, color:'#000'}}>{fullName}</Title>
         <View style={{flexDirection:'row', justifyContent:'space-between'}}>

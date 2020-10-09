@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Image, TouchableOpacity, Modal, Linking, FlatList, ActivityIndicator, Alert, ImageBackground, Platform, LayoutAnimation } from 'react-native';
-import { Container, Content, Button, Header, Left, Body, Right, Title, Text, Subtitle, Icon, Item, Input, Card, CardItem, Spinner } from 'native-base';
+import { Container, Content, Button, Header, Left, Body, Right, Title, Text, Subtitle, Icon, Item, Input, Card, CardItem, Spinner, Toast } from 'native-base';
 import { Entypo, MaterialCommunityIcons, FontAwesome } from '@expo/vector-icons';
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 import Moment from 'moment';
@@ -13,6 +13,7 @@ import TemplatesCustomer from './Templates';
 import QuickReplyPickerModal from './QuickReplyPickerModal/QuickReplyPickerModal';
 import QuickReplyImagePreview from './QuickReplyImagePreview/QuickReplyImagePreview';
 import LocationModal from './Location/LocationModal'
+import AgentSelectionPicker from './AgentSelection/AgentSelectionPicker';
 
 // Loader modules Expo
 import { Audio, Video } from 'expo-av';
@@ -79,7 +80,8 @@ export default class Chat extends Component {
       toolBoxBottomStyle: 65,
       locationModal: false,
       latitude:'',
-      longitude:''
+      longitude:'',
+      shouldShowAgentAssignationPickerModal: false
     };
     this.socket = io(SOCKET_URL, {jsonp: true});
     this.socket.on('connect', () => {this.socket.emit('create_room', globals.id)});
@@ -96,6 +98,7 @@ export default class Chat extends Component {
 
   componentDidMount() {
     this.opted_in = this.props.route.params.data.whatsapp_opt_in;
+    this.agentsList = this.props.route.params.data.agentsList;
     let rDate = Moment(this.props.route.params.data.recent_inbound_message_date).local();
     this.setState({
       canWrite: Moment().local().diff(rDate, 'hours') < 24
@@ -711,6 +714,44 @@ export default class Chat extends Component {
     }
   }
 
+  assignAgent = (agentId) => {
+    const data = {
+      'agent': {'retailer_user_id': agentId || null, 'chat_service': 'whatsapp'},
+      'id': this.state.customerId,
+      'agent_customer': {}
+    }
+    API.assignAgent(this.assignAgentResponse, data, this.state.customerId);
+  }
+
+  assignAgentResponse = {
+    success: (response) => {
+      try {
+        this.setState({
+          shouldShowAgentAssignationPickerModal: false,
+          customerId: null
+        },  this.props.navigation.navigate('Dashboard'))
+        Toast.show({
+          text: response.message,
+          buttonText: 'OK',
+          type: 'success'
+        })
+      } catch (error) {
+        Toast.show({
+          text: error.message,
+          buttonText: 'OK',
+          type: 'danger'
+        })
+      }
+    },
+    error: (err) => {
+      Toast.show({
+        text: err.message,
+        buttonText: 'OK',
+        type: 'danger'
+      })
+    }
+  }
+
   render() {
     return (
       <View style={styles.containerChat}>
@@ -730,7 +771,14 @@ export default class Chat extends Component {
             <Subtitle style={{marginBottom:16, fontSize:10}}><Text style={{color:'#ececec', fontSize:10}}>Asignado a: </Text>{this.state.assignedAgent}</Subtitle>
           </Body>
           <Icon name='call' type='MaterialIcons' style={{color:'white', fontSize:22, marginVertical:5, marginHorizontal:5}} onPress={() => {Linking.openURL('tel:' + this.props.route.params.data.phone)}} />
-          <Right />
+          <Right>
+            <TouchableOpacity onPress={() => {this.setState({shouldShowAgentAssignationPickerModal: true})}}>
+              <View style={styles.openAgentSelectionButtonContainer}>
+                <MaterialCommunityIcons name='account-switch' size={24} color='white' />
+              <Text  style={styles.openAgentSelectionButtonText}>Reasignar</Text>
+              </View>
+            </TouchableOpacity>
+          </Right>
         </Header>
         <ImageBackground source={require('../../assets/background_chat.png')} style={styles.image}>
           <View style={styles.chatMain}>
@@ -922,6 +970,12 @@ export default class Chat extends Component {
           latitude={this.state.latitude}
           longitude={this.state.longitude}
         />
+        <AgentSelectionPicker
+          assignedAgentId={this.props.route.params.data.assignedAgentId}
+          agentsList={[{id: '', first_name: 'No', last_name: 'asignado'}].concat(this.props.route.params.data.agentsList)}
+          visible={this.state.shouldShowAgentAssignationPickerModal}
+          onClose={() => {this.setState({shouldShowAgentAssignationPickerModal: false})}}
+          onPress={(agentId) => {this.assignAgent(agentId)}}/>
       </View>
     )
   }
