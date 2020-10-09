@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native'
+import { StyleSheet } from 'react-native';
 
 module.exports = StyleSheet.create({
   container: {
@@ -9,7 +9,7 @@ module.exports = StyleSheet.create({
   containerLogin: {
     flex: 1,
     backgroundColor: '#FFF',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   containerContent: {
     flex: 1,
@@ -19,30 +19,29 @@ module.exports = StyleSheet.create({
     marginVertical: 20
   },
   header: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 28,
-    color: "#514E5A",
+    color: '#514E5A'
   },
   descriptionText: {
     fontSize: 14,
-    color: "#514E5A"
+    color: '#514E5A'
   },
   input: {
     height: 44,
     borderBottomWidth: 1.5,
-    borderColor: "#ececec",
-    color: "#514E5A",
-    fontWeight: "600"
+    borderColor: '#ececec',
+    color: '#514E5A',
+    fontWeight: '600'
   },
   enter: {
     marginVertical: 10,
     height: 50,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     flexDirection: 'row'
   },
   texButton: {
-    textTransform: "capitalize",
     fontWeight: 'bold',
     color: '#fff',
     textTransform: 'uppercase'
@@ -51,28 +50,28 @@ module.exports = StyleSheet.create({
     marginHorizontal: 10,
     marginVertical: 5,
     marginTop: 10,
-    padding:5
+    padding: 5
   },
   separator: {
-    borderBottomWidth:1,
-    borderColor:'#34aae1'
+    borderBottomWidth: 1,
+    borderColor: '#34aae1'
   },
-  ///////////////////////////////// Style Chat /////////////////////////////////
+  // /////////////////////////////// Style Chat /////////////////////////////////
   containerChat: {
-    flex:1,
+    flex: 1,
     flexDirection: 'column',
     justifyContent: 'space-between'
   },
   image: {
     flex: 1,
-    resizeMode: "cover",
-    justifyContent: "center"
+    resizeMode: 'cover',
+    justifyContent: 'center'
   },
   chatMain: {
-    flex:1,
-    marginHorizontal:10,
-    flexDirection:'column',
-    justifyContent:'flex-end'
+    flex: 1,
+    marginHorizontal: 10,
+    flexDirection: 'column',
+    justifyContent: 'flex-end'
   },
   balloon: {
     maxWidth: '80%',
@@ -82,8 +81,8 @@ module.exports = StyleSheet.create({
     minWidth: '45%'
   },
   headerMessage: {
-    fontSize:16,
-    paddingBottom:3
+    fontSize: 16,
+    paddingBottom: 3
   },
   chatText: {
     fontSize: 14,
@@ -95,38 +94,38 @@ module.exports = StyleSheet.create({
     marginTop: 8
   },
   footerMessage: {
-    flexDirection:'row',
-    justifyContent:'flex-end',
+    flexDirection: 'row',
+    justifyContent: 'flex-end'
   },
   chatFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "transparent"
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'transparent'
   },
   selectUpdateCustomer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
   },
   inputMessage: {
-    flex:1,
+    flex: 1,
     backgroundColor: '#FFF',
     borderColor: '#FFF',
-    marginHorizontal:5,
-    marginLeft:10,
-    marginVertical:5,
-    color:"#514E5A",
-    fontSize:16,
-    paddingHorizontal:5,
+    marginHorizontal: 5,
+    marginLeft: 10,
+    marginVertical: 5,
+    color: '#514E5A',
+    fontSize: 16,
+    paddingHorizontal: 5,
     flexDirection: 'column'
   },
   inputMessageButton: {
-    marginHorizontal:10,
-    marginVertical:5,
-    backgroundColor:"#34aae1",
-    borderRadius:5,
-    color:"#514E5A"
+    marginHorizontal: 10,
+    marginVertical: 5,
+    backgroundColor: '#34aae1',
+    borderRadius: 5,
+    color: '#514E5A'
   },
   optionsPanelContainer: {
     flex: 1,
@@ -149,22 +148,22 @@ module.exports = StyleSheet.create({
     fontSize: 18,
     marginRight: 4
   },
-  /////////////////////////////// Style Chat End ///////////////////////////////
+  // ///////////////////////////// Style Chat End ///////////////////////////////
 
-  //////////////////////////// Style Edit CUstomer  ////////////////////////////
+  // ////////////////////////// Style Edit CUstomer  ////////////////////////////
   optionNationalIdType: {
-    flexDirection:'row',
-    justifyContent:'space-between',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginTop: 20
   },
   optionListTags: {
-    flexDirection:'row',
-    justifyContent:'space-between',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginTop: 10,
-    backgroundColor:'#ececec',
-    borderRadius:3,
+    backgroundColor: '#ececec',
+    borderRadius: 3
   },
-  ////////////////////////// Style Edit CUstomer End  //////////////////////////
+  // //////////////////////// Style Edit CUstomer End  //////////////////////////
 
   // ////////////////////////// Style Quick Replies  ////////////////////////////
   spinner: {
@@ -218,11 +217,11 @@ module.exports = StyleSheet.create({
 
   // ///////////////////////////////// Location  ////////////////////////////////////
   map: {
-    position:'absolute',
-    top:0,
-    left:0,
-    right:0,
-    bottom:0,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0
   }
   // /////////////////////////////// Location End  //////////////////////////////////
 });

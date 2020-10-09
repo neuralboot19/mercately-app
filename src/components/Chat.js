@@ -280,7 +280,7 @@ export default class Chat extends Component {
   getReplyChat = (data) => {
     let karix_message = data.karix_whatsapp_message.karix_whatsapp_message;
     if (this.state.customerId == karix_message.customer_id) {
-      if (karix_message.content_type == 'text') {
+      if (karix_message.content_type == 'text' || karix_message.content_media_type == 'location' || karix_message.content_media_type == 'audio' || karix_message.content_media_type == 'image') {
         if (!this.state.newMessage) {
           let messages = this.state.messages;
           let message_id = karix_message.id;
@@ -702,7 +702,6 @@ export default class Chat extends Component {
           locationModal: false,
           displaySquare: false
         })
-        API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,{},this.state.customerId,1,true);
       } catch (error) {
         console.log('LOGIN RESPONSE ERROR',error)
       }
@@ -730,6 +729,7 @@ export default class Chat extends Component {
             </Button>
             <Subtitle style={{marginBottom:16, fontSize:10}}><Text style={{color:'#ececec', fontSize:10}}>Asignado a: </Text>{this.state.assignedAgent}</Subtitle>
           </Body>
+          <Icon name='call' type='MaterialIcons' style={{color:'white', fontSize:22, marginVertical:5, marginHorizontal:5}} onPress={() => {Linking.openURL('tel:' + this.props.route.params.data.phone)}} />
           <Right />
         </Header>
         <ImageBackground source={require('../../assets/background_chat.png')} style={styles.image}>

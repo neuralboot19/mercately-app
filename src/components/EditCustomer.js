@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TextInput, Keyboard, ActivityIndicator, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { View, TextInput, Keyboard, ActivityIndicator, ScrollView, TouchableOpacity, FlatList, Linking } from 'react-native';
 import { Button, Text, Picker, Icon } from 'native-base';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -302,7 +302,10 @@ export default class EditCustomer extends React.Component {
             onSubmitEditing={() => this.setFocus("emailInput")}
           />
           <Text style={{marginTop: 20}}>Teléfono</Text>
-          <Text style={{marginTop: 20}}>{emoji(this.state.countryId)} {this.state.phone}</Text>
+          <TouchableOpacity style={[styles.optionNationalIdType,{justifyContent:'flex-start', marginTop:10}]} onPress={() => {Linking.openURL('tel:' + this.state.phone)}} >
+            <Text style={{marginTop: 2}}>{emoji(this.state.countryId)} {this.state.phone}</Text>
+            <Icon name='call' type='MaterialIcons' style={{fontSize:24}} />
+          </TouchableOpacity>
           <Text style={{marginTop: 20}}>Email</Text>
           <TextInput
             ref={ref => (this.emailInput = ref)}
