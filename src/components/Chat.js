@@ -10,10 +10,14 @@ import {CLOUDINARY_CLOUD_NAME, CLOUDINARY_UPLOAD_PRESET, SOCKET_URL} from '@env'
 // Component
 import EditCustomer from './EditCustomer';
 import TemplatesCustomer from './Templates';
+import QuickReplyPickerModal from './QuickReplyPickerModal/QuickReplyPickerModal';
+import QuickReplyImagePreview from './QuickReplyImagePreview/QuickReplyImagePreview';
+import LocationModal from './Location/LocationModal'
 
 // Loader modules Expo
 import { Audio, Video } from 'expo-av';
 import * as Permissions from 'expo-permissions';
+import * as Location from 'expo-location';
 
 // Modules Record Audio
 import AudioRecorderPlayer, { AVEncoderAudioQualityIOSType, AVEncodingOption, AudioEncoderAndroidType, AudioSet, AudioSourceAndroidType } from 'react-native-audio-recorder-player';
@@ -29,8 +33,6 @@ import * as globals from '../util/globals';
 
 // Api
 import { API } from '../util/api';
-import QuickReplyPickerModal from './QuickReplyPickerModal/QuickReplyPickerModal';
-import QuickReplyImagePreview from './QuickReplyImagePreview/QuickReplyImagePreview';
 
 // Style
 const styles = require('../../AppStyles');
@@ -74,7 +76,10 @@ export default class Chat extends Component {
       recordStart: false,
       shouldShowQuickResponsePickerModal: false,
       quickReplyMediaUrl: null,
-      toolBoxBottomStyle: 65
+      toolBoxBottomStyle: 65,
+      locationModal: false,
+      latitude:'',
+      longitude:''
     };
     this.socket = io(SOCKET_URL, {jsonp: true});
     this.socket.on('connect', () => {this.socket.emit('create_room', globals.id)});
@@ -166,7 +171,7 @@ export default class Chat extends Component {
           {titleHeader ? <Text style={stylesHeaderMessage}>{titleHeader}</Text> : null }
           {message.content_type == 'location' && (
             <TouchableOpacity style={[styles.chatText,{flexDirection:'row', justifyContent:'space-between'}]} onPress={() => {Linking.openURL(`https://www.google.com/maps/place/${message.content_location_latitude},${message.content_location_longitude}`)}} >
-              <Text>Ver ubucación Google Map   </Text>
+              <Text>Ubucación Google Map   </Text>
               <Entypo name="location" size={20} color={iconsColor} />
             </TouchableOpacity>
           )}
@@ -667,6 +672,46 @@ export default class Chat extends Component {
     }
   }
 
+  openLocation = async () => {
+    let { status } = await Location.requestPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Se denegó el permiso para acceder a la ubicación')
+    } else {
+      let location = await Location.getCurrentPositionAsync({});
+      let responseLatitude = location.coords.latitude;
+      let responseLongitude = location.coords.longitude;
+      this.setState({latitude:responseLatitude, longitude:responseLongitude, locationModal: true})
+    }
+  }
+
+  setLocation = (location) => {
+    let params = {
+      "longitude": location.longitude,
+      "latitude": location.latitude,
+      "customer_id": this.state.customerId,
+      "template": false,
+      "type": 'location'
+    }
+    API.sendWhatsAppLocation(this.sendWhatsAppLocationResponse,params,true);
+  }
+
+  sendWhatsAppLocationResponse = {
+    success: (response) => {
+      try {
+        this.setState({
+          locationModal: false,
+          displaySquare: false
+        })
+        API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,{},this.state.customerId,1,true);
+      } catch (error) {
+        console.log('LOGIN RESPONSE ERROR',error)
+      }
+    },
+    error: (err) => {
+      console.log('LOGIN RESPONSE ERR',err)
+    }
+  }
+
   render() {
     return (
       <View style={styles.containerChat}>
@@ -714,18 +759,18 @@ export default class Chat extends Component {
                 </Item>
               :
                 <Item rounded style={styles.inputMessage}>
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                      <Input
-                        placeholder='Escribe un mensaje aquí'
-                        onChangeText={messageText => this.inputMessage(messageText)}
-                        value={this.state.messageText}
-                        keyboardType="default"
-                        multiline
-                      />
-                      <Icon name='bolt' type='FontAwesome5' style={{color:'#999', paddingRight: 0, fontSize: 20}} onPress={() => this.openQuickResponsePicker()}/>
-                      <Icon name='paperclip' type='FontAwesome5' style={{color:'#999', paddingRight: 0, fontSize: 20}} onPress={() => this.handleTap()}/>
-                      <Icon name='camera' type='FontAwesome5' style={{color:'#999', fontSize: 20}} onPress={() => this.openCamera()} />
-                    </View>
+                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <Input
+                      placeholder='Escribe un mensaje aquí'
+                      onChangeText={messageText => this.inputMessage(messageText)}
+                      value={this.state.messageText}
+                      keyboardType="default"
+                      multiline
+                    />
+                    <Icon name='bolt' type='FontAwesome5' style={[styles.optionSelectIcon,{paddingRight:0}]} onPress={() => this.openQuickResponsePicker()}/>
+                    <Icon name='paperclip' type='FontAwesome5' style={[styles.optionSelectIcon,{paddingRight:0}]} onPress={() => this.handleTap()}/>
+                    <Icon name='camera' type='FontAwesome5' style={styles.optionSelectIcon} onPress={() => this.openCamera()} />
+                  </View>
                   {this.state.quickReplyMediaUrl &&
                     <QuickReplyImagePreview imageUrl={this.state.quickReplyMediaUrl} onPress={() => {this.removeQuickReplyMedia()}}/>
                   }
@@ -756,16 +801,23 @@ export default class Chat extends Component {
                   <View style={styles.optionsPanelItemContainer}>
                     <Button info rounded style={styles.optionPanelItemButton}
                             onPress={() => this.openQuickResponsePicker()}>
-                      <Icon type='FontAwesome' name='bolt'/>
+                      <Icon type='FontAwesome5' name='bolt' style={{fontSize:16, paddingHorizontal:2}}/>
                     </Button>
                     <Text note style={styles.optionPanelItemLabel}>Respuestas rápidas</Text>
                   </View>
                   <View style={styles.optionsPanelItemContainer}>
                     <Button info rounded style={styles.optionPanelItemButton}
                             onPress={() => this.openPicker()}>
-                      <Icon type='FontAwesome' name='image' style={{ fontSize: 14 }}/>
+                      <Icon type='FontAwesome5' name='image' style={{fontSize:16}}/>
                     </Button>
                     <Text note style={styles.optionPanelItemLabel}>Galería</Text>
+                  </View>
+                  <View style={styles.optionsPanelItemContainer}>
+                    <Button info rounded style={styles.optionPanelItemButton}
+                            onPress={() => this.openLocation()}>
+                      <Icon type='MaterialIcons' name='location-on' style={{fontSize:16}} />
+                    </Button>
+                    <Text note style={styles.optionPanelItemLabel}>Ubicación</Text>
                   </View>
                 </View>
               </CardItem>
@@ -862,6 +914,13 @@ export default class Chat extends Component {
         <QuickReplyPickerModal visible={this.state.shouldShowQuickResponsePickerModal}
                                onClose={() => this.setState({shouldShowQuickResponsePickerModal: false})}
                                onPress={(quickReply) => this.setQuickReply(quickReply)}
+        />
+        <LocationModal
+          visible={this.state.locationModal}
+          onClose={() => this.setState({locationModal: false})}
+          onPress={() => this.setLocation({latitude:this.state.latitude,longitude:this.state.longitude})}
+          latitude={this.state.latitude}
+          longitude={this.state.longitude}
         />
       </View>
     )

@@ -141,7 +141,13 @@ module.exports = StyleSheet.create({
     alignSelf: 'center'
   },
   optionPanelItemLabel: {
-    alignSelf: 'center'
+    alignSelf: 'center',
+    textAlign: 'center'
+  },
+  optionSelectIcon: {
+    color: '#999999',
+    fontSize: 18,
+    marginRight: 4
   },
   /////////////////////////////// Style Chat End ///////////////////////////////
 
@@ -207,6 +213,16 @@ module.exports = StyleSheet.create({
     width: 40,
     height: 40,
     position: 'absolute'
-  }
+  },
   // ////////////////////////// Style Quick Replies End  ////////////////////////////
+
+  // ///////////////////////////////// Location  ////////////////////////////////////
+  map: {
+    position:'absolute',
+    top:0,
+    left:0,
+    right:0,
+    bottom:0,
+  }
+  // /////////////////////////////// Location End  //////////////////////////////////
 });
