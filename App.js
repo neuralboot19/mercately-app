@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {AsyncStorage, View, ActivityIndicator} from 'react-native';
 
 // React Base
-import { StyleProvider } from 'native-base';
+import { Root, StyleProvider } from 'native-base';
 import getTheme from './native-base-theme/components';
 import material from './native-base-theme/variables/material';
 
@@ -109,10 +109,12 @@ export default function App () {
     )
   }
   return (
-    <StyleProvider style={getTheme(material)}>
-      <NavigationContainer ref={navigationRef}>
-        <Routes isLogin={isLogin}/>
-      </NavigationContainer>
-    </StyleProvider>
-  )
+    <Root>
+      <StyleProvider style={getTheme(material)}>
+        <NavigationContainer ref={navigationRef}>
+          <Routes isLogin={isLogin}/>
+        </NavigationContainer>
+      </StyleProvider>
+    </Root>
+  );
 }

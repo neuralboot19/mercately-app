@@ -222,6 +222,31 @@ module.exports = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0
-  }
+  },
   // /////////////////////////////// Location End  //////////////////////////////////
+
+  // ////////////////////////// Agents Assignment  ////////////////////////////
+  openAgentSelectionButtonContainer: {
+    flexDirection: 'row'
+  },
+  openAgentSelectionButtonText: {
+    color: 'white',
+    paddingLeft: 4,
+    fontSize: 12,
+    alignSelf: 'center'
+  },
+  assignAgentPickerHeaderTitle: {
+    flex: 5,
+    marginLeft: 10
+  },
+  assignAgentPickerHeaderCloseButton: {
+    flex: 1
+  },
+  assignAgentPickerNoAgentsMessage: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 16
+  }
+  // ////////////////////////// Agents Assignment End  ////////////////////////////
 });

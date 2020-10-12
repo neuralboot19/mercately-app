@@ -75,6 +75,9 @@ export const API = {
   },
   whatsAppQuickReplies: (onResponse) => {
     request(onResponse, {}, 'GET', 'JSON', true, `${BASE_URL}${APILIST.WHATSAPP_QUICK_REPLIES}?page=1`, buildHeader());
+  },
+  assignAgent: (onResponse, data, id) => {
+    request(onResponse, data, 'PUT', 'JSON', true, `${BASE_URL}${APILIST.CUSTOMER}${id}/${APILIST.ASSIGN_AGENT}`, buildHeader());
   }
 }
 
