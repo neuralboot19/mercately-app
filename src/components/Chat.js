@@ -231,7 +231,7 @@ export default class Chat extends Component {
 
   onPressSendMessage = (data) => {
     let message = this.state.messageText ? this.state.messageText : data
-    let template = data == "" ? false : true
+    let template = !!data;
     this.setState({spinner:true, isVisibleModalTemplatesCustomer:false})
     let endData;
     if(this.state.quickReplyMediaUrl) {
@@ -834,7 +834,7 @@ export default class Chat extends Component {
                     <FontAwesome name={this.state.recordStart ? "send" : "microphone"} size={24} color="white" />
                   </Button>
                 :
-                  <Button iconLeft info full rounded style={{paddingHorizontal:10.7, marginRight:10, marginVertical:10}} onPress={this.onPressSendMessage} >
+                  <Button iconLeft info full rounded style={{paddingHorizontal:10.7, marginRight:10, marginVertical:10}} onPress={() => this.onPressSendMessage()} >
                     <FontAwesome name="send" size={24} color="white" />
                   </Button>
               )}
