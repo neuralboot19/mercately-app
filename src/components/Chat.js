@@ -105,7 +105,7 @@ export default class Chat extends Component {
     }, () => {
       this.opted_in = this.props.route.params.data.whatsapp_opt_in || false
     })
-    API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,{},this.state.customerId,1,true);
+    API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,this.state.customerId,1,true);
   }
 
   customersKarixWhatsappMessagesResponse = {
@@ -261,7 +261,7 @@ export default class Chat extends Component {
           this.setState({messageText:""})
         }
         this.setState({spinner:false,buttonSendDisabled:true, quickReplyMediaUrl: null, toolBoxBottomStyle: 65})
-        API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse, {}, this.state.customerId,1,true);
+        API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse, this.state.customerId,1,true);
       } catch (error) {
         console.log('SEND MESSAGE RESPONSE ERROR',error)
       }
@@ -316,7 +316,7 @@ export default class Chat extends Component {
   whatsAppMessageAsReadResponse= {
     success: (response) => {
       try {
-        API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,{},this.state.customerId,1,true);
+        API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,this.state.customerId,1,true);
       } catch (error) {
         console.log('RESPONSE ERROR READ',error)
       }
@@ -392,7 +392,7 @@ export default class Chat extends Component {
       this.setState({isVisibleModalTemplatesCustomer:true})
     } else {
       Alert.alert(globals.APP_NAME,'Tengo el permiso explícito de enviar mensajes a este número (opt-in)',[
-        {text: 'OK', onPress: () => API.whatsAppAcceptOptIn(this.whatsAppAcceptOptInResponse,{},this.state.customerId,true)}
+        {text: 'OK', onPress: () => API.whatsAppAcceptOptIn(this.whatsAppAcceptOptInResponse,this.state.customerId,true)}
       ])
     }
   }
@@ -554,7 +554,7 @@ export default class Chat extends Component {
         }).catch(e => {
           alert(e);
         });
-        API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,{},this.state.customerId,1,true);
+        API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,this.state.customerId,1,true);
       } catch (error) {
         console.log('LOGIN RESPONSE ERROR ===>>>',error)
       }
@@ -665,7 +665,7 @@ export default class Chat extends Component {
   sendWhatsAppFilesResponse = {
     success: (response) => {
       try {
-        API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,{},this.state.customerId,1,true);
+        API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,this.state.customerId,1,true);
       } catch (error) {
         console.log('LOGIN RESPONSE ERROR',error)
       }

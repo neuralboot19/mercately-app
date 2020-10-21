@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, FlatList, TouchableOpacity, DrawerLayoutAndroid, Alert, AsyncStorage, ActivityIndicator } from 'react-native';
-import { Container, Header, Left, Body, Right, Button, Icon, Title, Badge, Text, Subtitle } from 'native-base';
+import { Container, Header, Left, Body, Right, Button, Icon, Title, Badge, Text, Subtitle, Item, Input } from 'native-base';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Moment from 'moment';
 import 'moment/locale/es';
@@ -49,7 +49,11 @@ export default class DashboardAdmin extends Component {
       agent: 'all',
       tag: 'all',
       selectedTag: undefined,
-      selectedAgent: undefined
+      selectedAgent: undefined,
+      visibleHeader:'flex',
+      visibleHeaderSearch: 'none',
+      visibleClearIconSearch: 'none',
+      textInputSearch: ''
     };
     this.signOut = this.signOut.bind(this);
     this.onEndReachedCalledDuringMomentum = true;
@@ -57,13 +61,18 @@ export default class DashboardAdmin extends Component {
     this.socket.on('connect', () => {this.socket.emit('create_room', globals.id)});
     this.getReplyChat = this.getReplyChat.bind(this);
     this.socket.on('customer_chat', this.getReplyChat);
+    this.props.navigation.addListener('blur', () => {
+      this.searchInput._root.blur()
+    });
   }
 
   componentDidMount() {
-    API.customersList(this.customersListResponse,{},1,0,'received_desc','all','all','all',true);
+    API.customersList(this.customersListResponse,1,0,'received_desc','all','all','all','',true);
   }
 
   onRefresh = () => {
+    this.searchInput._root.clear()
+    this.searchInput._root.blur()
     this.setState({
       isOnRefresh:true,
       customersList:[],
@@ -80,8 +89,11 @@ export default class DashboardAdmin extends Component {
       agent: 'all',
       tag: 'all',
       selectedTag: undefined,
-      selectedAgent: undefined})
-    API.customersList(this.customersListResponse,{},1,0,'received_desc','all','all','all',true);
+      selectedAgent: undefined,
+      visibleHeaderSearch:'none',
+      visibleHeader:'flex',
+      visibleClearIconSearch: 'none'})
+    API.customersList(this.customersListResponse,1,0,'received_desc','all','all','all','',true);
   }
 
   setDataFilter = (dataState) => {
@@ -103,7 +115,7 @@ export default class DashboardAdmin extends Component {
       selectedTag: dataState.selectedTag,
       selectedAgent: dataState.selectedAgent
     })
-    API.customersList(this.customersListResponse,{},1,0,dataState.order,dataState.type,dataState.agent,dataState.tag,true);
+    API.customersList(this.customersListResponse,1,0,dataState.order,dataState.type,dataState.agent,dataState.tag,'',true);
   }
 
   customersListResponse = {
@@ -135,7 +147,9 @@ export default class DashboardAdmin extends Component {
         page += 1
         this.setState({page:page,offset:offset})
       }
-      API.customersList(this.customersListResponse,{},page,offset,this.state.order,this.state.type,this.state.agent,this.state.tag,true);
+      if(this.state.textInputSearch === ''){
+        API.customersList(this.customersListResponse,page,offset,this.state.order,this.state.type,this.state.agent,this.state.tag,'',true);
+      }
     }
   }
 
@@ -150,7 +164,7 @@ export default class DashboardAdmin extends Component {
 
   signOut = async() =>{
     this.setState({ spinner: true });
-    API.signOut(this.signOutResponse,{},true)
+    API.signOut(this.signOutResponse,true)
   }
 
   signOutResponse = {
@@ -354,6 +368,61 @@ export default class DashboardAdmin extends Component {
     ))
   )
 
+  openHeaderSearch = () => {
+    this.searchInput._root.focus()
+    this.setState({visibleHeaderSearch:'flex', visibleHeader:'none'})
+  }
+
+  back = () => {
+    this.searchInput._root.clear()
+    this.searchInput._root.blur()
+    this.setState({customersList:[], visibleHeaderSearch:'none', visibleHeader:'flex', visibleClearIconSearch: 'none'})
+    API.customersList(this.customersListResponse,1,0,'received_desc','all','all','all','',true);
+  }
+
+  inputSearch = (text) => {
+    if(text.length > 0){
+      this.setState({
+        textInputSearch:text,
+        visibleClearIconSearch:'flex'
+      })
+    } else {
+      this.setState({
+        textInputSearch:text,
+        visibleClearIconSearch:'none'
+      })
+    }
+  }
+
+  submitHandlerSearch = () => {
+    this.setState({
+      isOnRefresh:true,
+      customersList:[],
+      filterListCheckAll: true,
+      filterListCheckRead: false,
+      filterListCheckUnread: false,
+      filterListCheckAllAgent: true,
+      filterListCheckNotAssigned: false,
+      filterListCheckAllTags: true,
+      filterListCheckOrderDesc: true,
+      filterListCheckOrderAsc: false,
+      order: 'received_desc',
+      type: 'all',
+      agent: 'all',
+      tag: 'all',
+      selectedTag: undefined,
+      selectedAgent: undefined,
+      visibleClearIconSearch: 'flex'})
+    API.customersList(this.customersListResponse,1,0,this.state.order,this.state.type,this.state.agent,this.state.tag,this.state.textInputSearch,true);
+  }
+
+  clearInputSearch = () => {
+    this.searchInput._root.clear()
+    this.searchInput._root.focus()
+    this.setState({
+      visibleClearIconSearch: 'none'})
+  }
+
   render() {
     let DrawerContent = (
       <View style={styles.containerContent}>
@@ -375,7 +444,7 @@ export default class DashboardAdmin extends Component {
     );
     return (
       <Container>
-        <Header>
+        <Header style={{display:this.state.visibleHeader}}>
           <Left>
             <Button transparent onPress={() => this.actionElementLeft('tool')}>
               <Icon name={this.state.leftElementIcon} />
@@ -385,10 +454,27 @@ export default class DashboardAdmin extends Component {
             <Title>Chats</Title>
           </Body>
           <Right>
+            <Button transparent onPress={() => this.openHeaderSearch()} >
+              <Icon name="ios-search" />
+            </Button>
             <Button transparent onPress={() => this.props.navigation.navigate('Filter',{setDataFilter:this.setDataFilter, listTags:this.state.listTags, listAgents:this.state.listAgents, dataState:this.state})} >
               <Icon name='filter' type='MaterialCommunityIcons' />
             </Button>
           </Right>
+        </Header>
+        <Header searchBar rounded style={{display:this.state.visibleHeaderSearch}}>
+          <Item>
+            <Icon name='arrow-back' onPress={() => this.back()} />
+            <Input
+              ref={ref => (this.searchInput = ref)}
+              placeholder="Buscar..."
+              onChangeText={textInputSearch => this.inputSearch(textInputSearch)}
+              value={this.state.textInputSearch}
+              keyboardType="default"
+              onSubmitEditing={() => this.submitHandlerSearch()}
+            />
+            <Icon name="close" style={{display:this.state.visibleClearIconSearch}} onPress={() => this.clearInputSearch()} />
+          </Item>
         </Header>
         <DrawerLayoutAndroid
           ref={_drawer => (this.drawer = _drawer)}

@@ -38,7 +38,7 @@ export default class EditCustomer extends React.Component {
   }
 
   componentDidMount() {
-    API.customer(this.customerResponse,{},this.props.data.id,true);
+    API.customer(this.customerResponse,this.props.data.id,true);
   }
 
   customerResponse = {
