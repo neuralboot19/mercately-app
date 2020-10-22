@@ -27,7 +27,7 @@ export default class Templates extends Component {
   }
 
   componentDidMount() {
-    API.whatsAppTemplates(this.whatsAppTemplatesResponse,{},1,true)
+    API.whatsAppTemplates(this.whatsAppTemplatesResponse,1,true)
   }
 
   whatsAppTemplatesResponse = {

@@ -64,7 +64,7 @@ export default function App () {
 
   const _handleNotification = async notification => {
     await initAsyncStorageVariables()
-    API.customer(onGetCustomer, {},
+    API.customer(onGetCustomer,
       notification.notification.request.content.data.customer_id, true)
   }
 
