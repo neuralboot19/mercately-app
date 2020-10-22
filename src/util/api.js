@@ -10,16 +10,16 @@ export const buildHeader = () => {
       'Content-Type': 'application/json'
     };
   } else {
-    let dataHeader = globals.header
+    let dataHeader = globals.header;
     header = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'token': dataHeader.map.authorization,
       'email': globals.email,
       'device': dataHeader.map.device
-    }
+    };
   } Object.assign(header); return header;
-}
+};
 
 export const API = {
   login: (onResponse, data, isHeaderRequired) => {
@@ -28,8 +28,8 @@ export const API = {
   signOut: (onResponse, isHeaderRequired) => {
     request(onResponse, {}, 'DELETE', 'JSON', isHeaderRequired, `${BASE_URL}${APILIST.SIGNOUT}`, buildHeader());
   },
-  customer: (onResponse, id, isHeaderRequired) => {
-    request(onResponse, {}, 'GET', 'JSON', isHeaderRequired, `${BASE_URL}${APILIST.CUSTOMER}${id}`, buildHeader());
+  customer: (onResponse, id) => {
+    request(onResponse, {}, 'GET', 'JSON', true, `${BASE_URL}${APILIST.CUSTOMER}${id}`, buildHeader());
   },
   customerUpdate: (onResponse, data, id, isHeaderRequired) => {
     request(onResponse, data, 'PUT', 'JSON', isHeaderRequired, `${BASE_URL}${APILIST.CUSTOMER}${id}`, buildHeader());
@@ -75,8 +75,11 @@ export const API = {
   },
   assignAgent: (onResponse, data, id) => {
     request(onResponse, data, 'PUT', 'JSON', true, `${BASE_URL}${APILIST.CUSTOMER}${id}/${APILIST.ASSIGN_AGENT}`, buildHeader());
+  },
+  allowStartBots: (onResponse, id) => {
+    request(onResponse, {}, 'PUT', 'JSON', true, `${BASE_URL}${APILIST.CUSTOMER}${id}/${APILIST.ALLOW_START_BOTS}`, buildHeader());
   }
-}
+};
 
 async function request(onResponse, data, type, returnType, isHeaderRequired, featureURL, secureRequest) {
   let response = '';

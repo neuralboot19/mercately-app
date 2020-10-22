@@ -10,3 +10,4 @@ export const SENDWHATSAPPBULKFILES = 'api/v1/karix_whatsapp_send_bulk_files';
 export const KARIXWHATSAPPSENDFILE = 'api/v1/karix_whatsapp_send_file';
 export const WHATSAPP_QUICK_REPLIES = 'api/v1/fast_answers_for_whatsapp';
 export const ASSIGN_AGENT = 'assign_agent';
+export const ALLOW_START_BOTS = 'toggle_chat_bot';
