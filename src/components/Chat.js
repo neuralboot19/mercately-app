@@ -81,7 +81,8 @@ export default class Chat extends Component {
       locationModal: false,
       latitude:'',
       longitude:'',
-      shouldShowAgentAssignationPickerModal: false
+      shouldShowAgentAssignationPickerModal: false,
+      allowStartBots: false
     };
     this.socket = io(SOCKET_URL, {jsonp: true});
     this.socket.on('connect', () => {this.socket.emit('create_room', globals.id)});
@@ -105,6 +106,7 @@ export default class Chat extends Component {
     }, () => {
       this.opted_in = this.props.route.params.data.whatsapp_opt_in || false
     })
+    API.customer(this.customerResponse,this.state.customerId);
     API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,this.state.customerId,1,true);
   }
 
@@ -120,6 +122,21 @@ export default class Chat extends Component {
     },
     error: (err) => {
       this.setState({spinner: false})
+      Alert.alert(globals.APP_NAME,err.message,[{text:'OK'}]);
+    }
+  }
+
+  customerResponse = {
+    success: (response) => {
+      try {
+        this.setState({
+          allowStartBots: response.customer.allow_start_bots
+        })
+      } catch (error) {
+        console.log('LOGIN RESPONSE ERROR',error)
+      }
+    },
+    error: (err) => {
       Alert.alert(globals.APP_NAME,err.message,[{text:'OK'}]);
     }
   }
@@ -733,13 +750,15 @@ export default class Chat extends Component {
         Toast.show({
           text: response.message,
           buttonText: 'OK',
-          type: 'success'
+          type: 'success',
+          duration: 4000
         })
       } catch (error) {
         Toast.show({
           text: error.message,
           buttonText: 'OK',
-          type: 'danger'
+          type: 'danger',
+          duration: 4000
         })
       }
     },
@@ -747,7 +766,49 @@ export default class Chat extends Component {
       Toast.show({
         text: err.message,
         buttonText: 'OK',
-        type: 'danger'
+        type: 'danger',
+        duration: 4000
+      })
+    }
+  }
+
+  colorAllowStartBots = () => {
+    let color = this.state.allowStartBots ? '#3cb4e5' : 'white'
+    return color
+  }
+  
+  getToggleChatBot = () => {
+    API.allowStartBots(this.allowStartBotsResponse, this.state.customerId);
+  }
+
+  allowStartBotsResponse = {
+    success: (response) => {
+      let msg = response.customer.allow_start_bots ? 'Bot Activado' : 'Bot Desactivado'
+      try {
+        this.setState({
+          allowStartBots: response.customer.allow_start_bots
+        })
+        Toast.show({
+          text: msg,
+          buttonText: 'OK',
+          type: 'success',
+          duration: 4000
+        })
+      } catch (error) {
+        Toast.show({
+          text: error.message,
+          buttonText: 'OK',
+          type: 'danger',
+          duration: 4000
+        })
+      }
+    },
+    error: (err) => {
+      Toast.show({
+        text: err.message,
+        buttonText: 'OK',
+        type: 'danger',
+        duration: 4000
       })
     }
   }
@@ -771,6 +832,7 @@ export default class Chat extends Component {
             <Subtitle style={{marginBottom:16, fontSize:10}}><Text style={{color:'#ececec', fontSize:10}}>Asignado a: </Text>{this.state.assignedAgent}</Subtitle>
           </Body>
           <Icon name='call' type='MaterialIcons' style={{color:'white', fontSize:22, marginVertical:5, marginHorizontal:5}} onPress={() => {Linking.openURL('tel:' + this.props.route.params.data.phone)}} />
+          <Icon name='robot' type='MaterialCommunityIcons' style={{color:`${this.colorAllowStartBots()}`, fontSize:22, marginVertical:5, marginHorizontal:5}} onPress={() => this.getToggleChatBot()} />
           <Right>
             <TouchableOpacity onPress={() => {this.setState({shouldShowAgentAssignationPickerModal: true})}}>
               <View style={styles.openAgentSelectionButtonContainer}>
