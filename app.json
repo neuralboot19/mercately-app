@@ -2,7 +2,7 @@
   "expo": {
     "name": "Mercately",
     "slug": "mercately",
-    "version": "1.0.9",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -24,7 +24,7 @@
       "favicon": "./assets/favicon.png"
     },
     "android": {
-      "versionCode": 9,
+      "versionCode": 10,
       "package": "com.mercately.app",
       "permissions": [
         "NOTIFICATIONS",
@@ -32,7 +32,8 @@
         "AUDIO_RECORDING",
         "ACCESS_FINE_LOCATION",
         "INTERNET"
-      ]
+      ],
+      "useNextNotificationsApi": true
     },
     "sdkVersion": "38.0.0",
     "platforms": [

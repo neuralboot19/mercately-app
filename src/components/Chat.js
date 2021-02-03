@@ -61,6 +61,7 @@ export default class Chat extends Component {
       gupshupIntegrated: globals.retailer_integration,
       fullName: !this.props.route.params.data.fullName ? this.props.route.params.data.phone : this.props.route.params.data.fullName,
       assignedAgent: !this.props.route.params.data.assigned_agent ? 'No asignado' : this.props.route.params.data.assigned_agent,
+      assignedAgentId: this.props.route.params.data.assignedAgentId,
       loadedImagesA:{},
       img1: "",
       img2: "",
@@ -96,6 +97,31 @@ export default class Chat extends Component {
     this.audioRecorderPlayer = new AudioRecorderPlayer();
     this.audioRecorderPlayer.setSubscriptionDuration(0.3);
   }
+  
+  static getDerivedStateFromProps(props, state) {
+    if (props.route.params.data.id !== state.customerId) {
+      return {
+        ...state,
+        customerId: props.route.params.data.id,
+        messages: state.messages,
+        fullName: !props.route.params.data.fullName ? props.route.params.data.phone : props.route.params.data.fullName,
+        assignedAgent: state.assignedAgent,
+        assignedAgentId: state.assignedAgentId,
+        canWrite: true
+      }
+    }
+    // Return null if the state hasn't changed
+    return null;
+  }
+
+  componentDidUpdate(prevProps) {
+    // Typical usage (don't forget to compare props):
+    if (this.props.route.params.data.id !== prevProps.route.params.data.id) {
+      // Llamada al api
+      API.customer(this.customerResponse,this.state.customerId);
+      API.customersKarixWhatsappMessages(this.customersKarixWhatsappMessagesResponse,this.state.customerId,1,true);
+    }
+  }
 
   componentDidMount() {
     this.opted_in = this.props.route.params.data.whatsapp_opt_in;
@@ -130,7 +156,8 @@ export default class Chat extends Component {
     success: (response) => {
       try {
         this.setState({
-          allowStartBots: response.customer.allow_start_bots
+          allowStartBots: response.customer.allow_start_bots,
+          assignedAgentId: response.customer.assigned_agent.id
         })
       } catch (error) {
         console.log('LOGIN RESPONSE ERROR',error)
@@ -776,7 +803,7 @@ export default class Chat extends Component {
     let color = this.state.allowStartBots ? '#3cb4e5' : 'white'
     return color
   }
-  
+
   getToggleChatBot = () => {
     API.allowStartBots(this.allowStartBotsResponse, this.state.customerId);
   }
@@ -877,9 +904,9 @@ export default class Chat extends Component {
                       keyboardType="default"
                       multiline
                     />
-                    <Icon name='bolt' type='FontAwesome5' style={[styles.optionSelectIcon,{paddingRight:0}]} onPress={() => this.openQuickResponsePicker()}/>
-                    <Icon name='paperclip' type='FontAwesome5' style={[styles.optionSelectIcon,{paddingRight:0}]} onPress={() => this.handleTap()}/>
-                    <Icon name='camera' type='FontAwesome5' style={styles.optionSelectIcon} onPress={() => this.openCamera()} />
+                    <Icon name='bolt' type='FontAwesome' style={[styles.optionSelectIcon,{paddingRight:0}]} onPress={() => this.openQuickResponsePicker()}/>
+                    <Icon name='paperclip' type='FontAwesome' style={[styles.optionSelectIcon,{paddingRight:0}]} onPress={() => this.handleTap()}/>
+                    <Icon name='camera' type='FontAwesome' style={styles.optionSelectIcon} onPress={() => this.openCamera()} />
                   </View>
                   {this.state.quickReplyMediaUrl &&
                     <QuickReplyImagePreview imageUrl={this.state.quickReplyMediaUrl} onPress={() => {this.removeQuickReplyMedia()}}/>
@@ -911,14 +938,14 @@ export default class Chat extends Component {
                   <View style={styles.optionsPanelItemContainer}>
                     <Button info rounded style={styles.optionPanelItemButton}
                             onPress={() => this.openQuickResponsePicker()}>
-                      <Icon type='FontAwesome5' name='bolt' style={{fontSize:16, paddingHorizontal:2}}/>
+                      <Icon type='FontAwesome' name='bolt' style={{fontSize:16, paddingHorizontal:2}}/>
                     </Button>
                     <Text note style={styles.optionPanelItemLabel}>Respuestas rápidas</Text>
                   </View>
                   <View style={styles.optionsPanelItemContainer}>
                     <Button info rounded style={styles.optionPanelItemButton}
                             onPress={() => this.openPicker()}>
-                      <Icon type='FontAwesome5' name='image' style={{fontSize:16}}/>
+                      <Icon type='FontAwesome' name='image' style={{fontSize:16}}/>
                     </Button>
                     <Text note style={styles.optionPanelItemLabel}>Galería</Text>
                   </View>
@@ -1033,7 +1060,7 @@ export default class Chat extends Component {
           longitude={this.state.longitude}
         />
         <AgentSelectionPicker
-          assignedAgentId={this.props.route.params.data.assignedAgentId}
+          assignedAgentId={this.state.assignedAgentId}
           agentsList={[{id: '', first_name: 'No', last_name: 'asignado'}].concat(this.props.route.params.data.agentsList)}
           visible={this.state.shouldShowAgentAssignationPickerModal}
           onClose={() => {this.setState({shouldShowAgentAssignationPickerModal: false})}}

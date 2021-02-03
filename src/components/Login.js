@@ -17,9 +17,10 @@ export default class Login extends React.Component {
       password: '',
       spinner: false,
     };
+    this.login = this.login.bind(this);
   }
 
-  login = async() =>{
+  login() {
     if (this.state.email == '') {
       Alert.alert('User o Email','No puede estar vacío',[{text:'OK'}]);
     } else if (this.state.password == '') {
@@ -52,7 +53,13 @@ export default class Login extends React.Component {
           globals.first_name = response.data.attributes.first_name || '';
           globals.last_name = response.data.attributes.last_name || '';
           globals.retailer_integration = response.data.attributes.retailer_integration || '';
-          this.props.navigation.navigate('Dashboard');
+          if (this.props.route.params !== undefined) {
+            if (this.props.route.params.back_login === true) {
+              this.props.navigation.navigate('DashboardIsLogin');
+            }
+          } else {
+            this.props.navigation.navigate('Dashboard');
+          }
         })
       } catch (error) {
         console.log('ERROR LOGIN RESPONSE',error)

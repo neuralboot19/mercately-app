@@ -18,6 +18,7 @@ export default class Navigator extends React.Component {
       <Stack.Navigator initialRouteName={this.props.isLogin ? "Dashboard" : "Login"}>
         <Stack.Screen name="Login" options={{ headerShown: false }} component={Login} />
         <Stack.Screen name="Dashboard" options={{ headerShown: false }} component={Dashboard} />
+        <Stack.Screen name="DashboardIsLogin" options={{ headerShown: false }} component={Dashboard} />
         <Stack.Screen name="Chat" options={{ headerShown: false }} component={Chat} />
         <Stack.Screen name="Filter" options={{ headerShown: false }} component={Filter} />
       </Stack.Navigator>

@@ -162,7 +162,7 @@ export default class DashboardAdmin extends Component {
     this.drawer.closeDrawer();
   }
 
-  signOut = async() =>{
+  signOut() {
     this.setState({ spinner: true });
     API.signOut(this.signOutResponse,true)
   }
@@ -180,8 +180,8 @@ export default class DashboardAdmin extends Component {
         globals.email = null
         globals.retailer_integration = null
         this.drawer.closeDrawer();
-        this.setState({leftElementIcon: 'menu', spinner: false, customersList:[]})
-        this.props.navigation.navigate('Login');
+        this.setState({leftElementIcon: 'menu', spinner: false, customersList:[]});
+        this.props.navigation.navigate('Login', { back_login: true });
       } catch (error) {
         AsyncStorage.clear();
         globals.header = null;
@@ -207,7 +207,7 @@ export default class DashboardAdmin extends Component {
       globals.email = null
       globals.retailer_integration = null
       this.setState({spinner: false, isOnRefresh:true, customersList:[]});
-      Alert.alert('Error Cierre su App y inicie de nuevo',err.message,[{text:'OK', onPress: () => this.props.navigation.navigate('Login')}]);
+      Alert.alert('Error Cierre su App y inicie de nuevo',err.message,[{text:'OK', onPress: () => this.props.navigation.navigate('Login', { back_login: true })}]);
     }
   }
 
