@@ -803,7 +803,7 @@ export default class Chat extends Component {
     let color = this.state.allowStartBots ? '#3cb4e5' : 'white'
     return color
   }
-  
+
   getToggleChatBot = () => {
     API.allowStartBots(this.allowStartBotsResponse, this.state.customerId);
   }
@@ -904,9 +904,9 @@ export default class Chat extends Component {
                       keyboardType="default"
                       multiline
                     />
-                    <Icon name='bolt' type='FontAwesome5' style={[styles.optionSelectIcon,{paddingRight:0}]} onPress={() => this.openQuickResponsePicker()}/>
-                    <Icon name='paperclip' type='FontAwesome5' style={[styles.optionSelectIcon,{paddingRight:0}]} onPress={() => this.handleTap()}/>
-                    <Icon name='camera' type='FontAwesome5' style={styles.optionSelectIcon} onPress={() => this.openCamera()} />
+                    <Icon name='bolt' type='FontAwesome' style={[styles.optionSelectIcon,{paddingRight:0}]} onPress={() => this.openQuickResponsePicker()}/>
+                    <Icon name='paperclip' type='FontAwesome' style={[styles.optionSelectIcon,{paddingRight:0}]} onPress={() => this.handleTap()}/>
+                    <Icon name='camera' type='FontAwesome' style={styles.optionSelectIcon} onPress={() => this.openCamera()} />
                   </View>
                   {this.state.quickReplyMediaUrl &&
                     <QuickReplyImagePreview imageUrl={this.state.quickReplyMediaUrl} onPress={() => {this.removeQuickReplyMedia()}}/>
@@ -938,14 +938,14 @@ export default class Chat extends Component {
                   <View style={styles.optionsPanelItemContainer}>
                     <Button info rounded style={styles.optionPanelItemButton}
                             onPress={() => this.openQuickResponsePicker()}>
-                      <Icon type='FontAwesome5' name='bolt' style={{fontSize:16, paddingHorizontal:2}}/>
+                      <Icon type='FontAwesome' name='bolt' style={{fontSize:16, paddingHorizontal:2}}/>
                     </Button>
                     <Text note style={styles.optionPanelItemLabel}>Respuestas rápidas</Text>
                   </View>
                   <View style={styles.optionsPanelItemContainer}>
                     <Button info rounded style={styles.optionPanelItemButton}
                             onPress={() => this.openPicker()}>
-                      <Icon type='FontAwesome5' name='image' style={{fontSize:16}}/>
+                      <Icon type='FontAwesome' name='image' style={{fontSize:16}}/>
                     </Button>
                     <Text note style={styles.optionPanelItemLabel}>Galería</Text>
                   </View>
