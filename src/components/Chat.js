@@ -649,7 +649,7 @@ export default class Chat extends Component {
               AVFormatIDKeyIOS: AVEncodingOption.aac,
             }
             const meteringEnabled = false
-            const uri = await this.audioRecorderPlayer.startRecorder(path, meteringEnabled, audioSet)
+            const uri = await this.audioRecorderPlayer.startRecorder(path, audioSet, meteringEnabled)
             this.audioRecorderPlayer.addRecordBackListener((e) => {
               this.setState({
                 recordSecs: e.current_position,

@@ -24,7 +24,7 @@
       "favicon": "./assets/favicon.png"
     },
     "android": {
-      "versionCode": 10,
+      "versionCode": 11,
       "package": "com.mercately.app",
       "permissions": [
         "NOTIFICATIONS",
