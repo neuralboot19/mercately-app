@@ -9,6 +9,7 @@
     "@bam.tech/react-native-make": "^3.0.0",
     "@dudigital/react-native-zoomable-view": "^1.0.15",
     "@react-native-community/masked-view": "0.1.10",
+    "@react-native-picker/picker": "^1.9.10",
     "@react-navigation/native": "^5.7.3",
     "@react-navigation/stack": "^5.9.0",
     "expo": "~38.0.8",

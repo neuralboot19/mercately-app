@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Container, Content, Header, Body, Icon, Text, ListItem, Left, Right, CheckBox, Button, Picker, Title } from 'native-base';
+import { Container, Content, Header, Body, Icon, Text, ListItem, Left, Right, CheckBox, Button, Title } from 'native-base';
+import { Picker } from '@react-native-picker/picker';
 
 // Style
 const styles = require('../../AppStyles');
@@ -198,7 +199,6 @@ export default class Filter extends Component {
             <Body>
               <Picker
                 mode="dropdown"
-                iosIcon={<Icon name="arrow-down" />}
                 style={{ width: undefined }}
                 selectedValue={this.state.selectedAgent}
                 onValueChange={this.onValueChangeAgents.bind(this)}
@@ -232,7 +232,6 @@ export default class Filter extends Component {
             <Body>
               <Picker
                 mode="dropdown"
-                iosIcon={<Icon name="arrow-down" />}
                 placeholder="Seleccionar"
                 placeholderStyle={{ color: "#bfc6ea" }}
                 placeholderIconColor="#007aff"
